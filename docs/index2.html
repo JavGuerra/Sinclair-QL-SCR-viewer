@@ -5,23 +5,29 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sinclair QL SCR View v0.1</title>
-  <meta name="description" content="Load and display Sinclair QL computer screens." />
+  <meta name="description" content="Load and display Sinclair QL computer screens in mode 4." />
   <meta name="author" content="Javier Guerra" />
   <style>
     body{ display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0; background-color: #ddd; font-family: Arial, sans-serif; font-size: 12px;}
     h1{ font-weight: bold; margin: 15px 0 5px;}
+    #controles{ display: flex; justify-content: center; align-items: center;}
+    #controles a{ background-color: #4CAF50; color: white; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border: none; margin-left: 20px; }
     #inputArchivo{ margin: 10px 0;}
     #canvasImagen{ background-color: #ccc; height: 768px;}
   </style>
 </head>
 
 <body>
-  <h1>Sinclair QL SCR View</h1>
+  <h1>Sinclair QL SCR View · Mode 4</h1>
 
-  <input type="file" id="inputArchivo" />
+  <div id="controles">
+    <input type="file" id="inputArchivo" />
+    <a href="index.html">Mode 8?</a>
+  </div>
+
   <canvas id="canvasImagen" width="1024" height="768"></canvas>
   
-  <p><small>v0.1 Mode 8 only · 2024 Javier Guerra</small></p>
+  <p><small>v0.1 · 2024 Javier Guerra</small></p>
 
   <script>
     var canvas = document.getElementById('canvasImagen');
@@ -38,22 +44,22 @@
 
         for (var i = 0; i < 256; i++) {
 
-          for (var j = 0; j < 256; j += 4) {
+          for (var j = 0; j < 512; j += 8) {
 
-            var indice = (i * 256 + j) / 2;
+            var indice = (i * 256 + (j/2)) / 2;
             var byteVerde = buffer[indice];
-            var byteColor = buffer[indice + 1];
+            var byteRojo = buffer[indice + 1];
 
-            for (var k = 0; k < 4; k++) {
+            for (var k = 0; k < 8; k++) {
 
-              var v = ((4 - k) * 2) - 1; // para v: 7, 5, 3, 1
+              var v = 8 - k - 1;
 
               var g = (byteVerde >> v) & 0x01 ? 255 : 0;
-              var r = (byteColor >> v) & 0x01 ? 255 : 0;
-              var b = (byteColor >> v - 1) & 0x01 ? 255 : 0;
+              var r = (byteRojo >> v) & 0x01 ? 255 : 0;
+              var b = r & g ? 255 : 0;
 
               ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
-              ctx.fillRect((j + k) * 4, i * 3, 4, 3);
+              ctx.fillRect((j + k) * 2, i * 3, 2, 3);
             }
           }
         }

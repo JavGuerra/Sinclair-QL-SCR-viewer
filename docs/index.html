@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sinclair QL SCR View v0.1</title>
+  <meta name="description" content="Load and display Sinclair QL computer screens in mode 8." />
+  <meta name="author" content="Javier Guerra" />
+  <style>
+    body{ display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0; background-color: #ddd; font-family: Arial, sans-serif; font-size: 12px;}
+    h1{ font-weight: bold; margin: 15px 0 5px;}
+    #controles{ display: flex; justify-content: center; align-items: center;}
+    #controles a{ background-color: #4CAF50; color: white; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border: none; margin-left: 20px; }
+    #inputArchivo{ margin: 10px 0;}
+    #canvasImagen{ background-color: #ccc; height: 768px;}
+  </style>
+</head>
+
+<body>
+  <h1>Sinclair QL SCR View · Mode 8</h1>
+
+  <div id="controles">
+    <input type="file" id="inputArchivo" />
+    <a href="index2.html">Mode 4?</a>
+  </div>
+
+  <canvas id="canvasImagen" width="1024" height="768"></canvas>
+  
+  <p><small>v0.1 · 2024 Javier Guerra</small></p>
+
+  <script>
+    var canvas = document.getElementById('canvasImagen');
+    var ctx = canvas.getContext('2d');
+
+    document.getElementById('inputArchivo').addEventListener('change', function (e) {
+      var archivo = e.target.files[0];
+      if (!archivo) return;
+
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        var datos = e.target.result;
+        var buffer = new Uint8Array(datos);
+
+        for (var i = 0; i < 256; i++) {
+
+          for (var j = 0; j < 256; j += 4) {
+
+            var indice = (i * 256 + j) / 2;
+            var byteVerde = buffer[indice];
+            var byteColor = buffer[indice + 1];
+
+            for (var k = 0; k < 4; k++) {
+
+              var v = ((4 - k) * 2) - 1; // para v: 7, 5, 3, 1
+
+              var g = (byteVerde >> v) & 0x01 ? 255 : 0;
+              var r = (byteColor >> v) & 0x01 ? 255 : 0;
+              var b = (byteColor >> v - 1) & 0x01 ? 255 : 0;
+
+              ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+              ctx.fillRect((j + k) * 4, i * 3, 4, 3);
+            }
+          }
+        }
+      };
+      reader.readAsArrayBuffer(archivo);
+    }, false);
+  </script>
+
+</body>
+
+</html>
