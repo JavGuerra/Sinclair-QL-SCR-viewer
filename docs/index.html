@@ -15,6 +15,8 @@
     #descargar{ margin-left: 7px; }
     #inputArchivo{ margin: 10px 0; }
     #canvasImagen, #canvasEscala{ background-color: #ccc; }
+    #descargar:disabled { cursor: not-allowed; }
+    #descargar:enabled { cursor: default; }
   </style>
 </head>
 
@@ -81,6 +83,8 @@
       var archivo = e.target.files[0];
       if (!archivo) return;
 
+      nombreArchivoOriginal = archivo.name;
+
       var reader = new FileReader();
       reader.onload = function (e) {
         var datos = e.target.result;
@@ -108,14 +112,19 @@
           }
         }
         dibujarEnEscala();
+        botonDescargar.disabled = false;
       };
       reader.readAsArrayBuffer(archivo);
     }, false);
 
+    var botonDescargar = document.getElementById('descargar');
+    botonDescargar.disabled = true;
+
     function descargarComoPNG() {
       var canvas = document.getElementById('canvasImagen');
       var link = document.createElement('a');
-      link.download = 'scr_QL8.png';
+      var nombreArchivo = nombreArchivoOriginal || 'scr';
+      link.download = nombreArchivo + '_QL8.png';
       link.href = canvas.toDataURL('image/png');
       link.click();
     }
