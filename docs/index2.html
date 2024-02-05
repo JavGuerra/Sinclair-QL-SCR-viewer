@@ -23,6 +23,7 @@
   <div id="controles">
     <input type="file" id="inputArchivo" />
     <a href="index.html">Mode 8?</a>
+    <button id="descargar">Download PNG</button>
   </div>
 
   <canvas id="canvasImagen" width="1024" height="768"></canvas>
@@ -66,6 +67,16 @@
       };
       reader.readAsArrayBuffer(archivo);
     }, false);
+
+    function descargarComoPNG() {
+      var canvas = document.getElementById('canvasImagen');
+      var link = document.createElement('a');
+      link.download = 'scr_QL4.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    document.getElementById('descargar').addEventListener('click', descargarComoPNG);
   </script>
 
 </body>
