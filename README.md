@@ -7,6 +7,8 @@ This program load and display Sinclair QL computer screens.
 
 ![snapshot](docs/qlscrview.png)
 
+[» Go to the APP online](https://javguerra.github.io/qlscrview/)
+
 This application is an HTML file that allows an image file in QL format located locally or remotely to be loaded into the browser, using an input button, and displays its content without CORS errors occurring, and without using a server.
 
 The program interprets the colors and format in MODE 8 and MODE 4 of the QL, with the colors of each pixel using the palette: black, blue, red, magenta, green, cyan, yellow and white for mode 8, and black, red, green and white for mode 4.
