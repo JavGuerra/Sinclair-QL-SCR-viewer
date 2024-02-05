@@ -5,7 +5,7 @@ By: Javier Guerra
 
 This program load and display Sinclair QL computer screens.
 
-![snapshot](qlscrview.png)
+![snapshot](docs/qlscrview.png)
 
 This application is an HTML file that allows an image file in QL format located locally or remotely to be loaded into the browser, using an input button, and displays its content without CORS errors occurring, and without using a server.
 
