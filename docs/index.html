@@ -117,9 +117,6 @@
       reader.readAsArrayBuffer(archivo);
     }, false);
 
-    var botonDescargar = document.getElementById('descargar');
-    botonDescargar.disabled = true;
-
     function descargarComoPNG() {
       var canvas = document.getElementById('canvasImagen');
       var link = document.createElement('a');
@@ -129,7 +126,9 @@
       link.click();
     }
 
-    document.getElementById('descargar').addEventListener('click', descargarComoPNG);
+    var botonDescargar = document.getElementById('descargar');
+    botonDescargar.disabled = true;
+    botonDescargar.addEventListener('click', descargarComoPNG);
   </script>
 
 </body>
