@@ -35,10 +35,26 @@
   <p><small>v1.0 · 2024 Javier Guerra · <a href="https://github.com/JavGuerra/qlscrview">The code</a></small></p>
 
   <script>
-    var canvasOriginal = document.getElementById('canvasImagen');
-    var canvasEscala = document.getElementById('canvasEscala');
-    var ctx = canvasOriginal.getContext('2d');
-    var ctxEscala = canvasEscala.getContext('2d');
+    var canvasOriginal, canvasEscala, ctx, ctxEscala, botonDescargar, inputArchivo;
+    
+    window.addEventListener('load', function () {
+      canvasOriginal = document.getElementById('canvasImagen');
+      canvasEscala = document.getElementById('canvasEscala');
+      ctx = canvasOriginal.getContext('2d');
+      ctxEscala = canvasEscala.getContext('2d');
+
+      botonDescargar = document.getElementById('descargar');
+      inputArchivo = document.getElementById('inputArchivo');
+
+      botonDescargar.disabled = true;
+      inputArchivo.value = '';
+
+      botonDescargar.addEventListener('click', descargarComoPNG);
+      inputArchivo.addEventListener('change', manejadorArchivoSelec, false);
+      window.addEventListener('resize', calcularTamañoCanvas);
+
+      calcularTamañoCanvas();
+    });
 
     function dibujarEnEscala() {
       // Calcular el factor de escala basado en el tamaño del segundo canvas
@@ -61,7 +77,7 @@
 
       // Dibujar sólo la parte visible del primer canvas en el segundo
       ctxEscala.drawImage(canvasOriginal, 0, 0, canvasOriginal.width, canvasOriginal.height, xVisible, yVisible, anchoVisible, altoVisible);
-      }
+    }
 
     // Función para calcular el tamaño del segundo canvas basado en el tamaño del dispositivo
     function calcularTamañoCanvas() {
@@ -75,11 +91,7 @@
       dibujarEnEscala();
     }
 
-    window.addEventListener('resize', calcularTamañoCanvas);
-
-    calcularTamañoCanvas();
-
-    document.getElementById('inputArchivo').addEventListener('change', function (e) {
+    function manejadorArchivoSelec(e) {
       var archivo = e.target.files[0];
       if (!archivo) return;
 
@@ -115,7 +127,7 @@
         botonDescargar.disabled = false;
       };
       reader.readAsArrayBuffer(archivo);
-    }, false);
+    }
 
     function descargarComoPNG() {
       var canvas = document.getElementById('canvasImagen');
@@ -125,11 +137,7 @@
       link.href = canvas.toDataURL('image/png');
       link.click();
     }
-
-    var botonDescargar = document.getElementById('descargar');
-    botonDescargar.disabled = true;
-    botonDescargar.addEventListener('click', descargarComoPNG);
-  </script>
+</script>
 
 </body>
 
