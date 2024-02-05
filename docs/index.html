@@ -13,8 +13,8 @@
     #controles{ display: flex; justify-content: center; align-items: center;}
     #controles a{ background-color: #4CAF50; color: white; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border: none; margin-left: 20px; }
     #descargar{ margin-left: 7px; }
-    #inputArchivo{ margin: 10px 0;}
-    #canvasImagen{ background-color: #ccc; height: 768px;}
+    #inputArchivo{ margin: 10px 0; }
+    #canvasImagen, #canvasEscala{ background-color: #ccc; }
   </style>
 </head>
 
@@ -23,17 +23,59 @@
 
   <div id="controles">
     <input type="file" id="inputArchivo" />
-    <a href="index2.html">Mode 4?</a>
-    <button id="descargar">Download PNG</button>
+    <a href="index2.html">Mode&nbsp;4?</a>
+    <button id="descargar">Download&nbsp;PNG</button>
   </div>
 
-  <canvas id="canvasImagen" width="1024" height="768"></canvas>
+  <canvas id="canvasImagen" width="1024" height="768" style="display:none;"></canvas>
+  <canvas id="canvasEscala" class="canvas-escala"></canvas>
   
   <p><small>v1.0 · 2024 Javier Guerra · <a href="https://github.com/JavGuerra/qlscrview">The code</a></small></p>
 
   <script>
-    var canvas = document.getElementById('canvasImagen');
-    var ctx = canvas.getContext('2d');
+    var canvasOriginal = document.getElementById('canvasImagen');
+    var canvasEscala = document.getElementById('canvasEscala');
+    var ctx = canvasOriginal.getContext('2d');
+    var ctxEscala = canvasEscala.getContext('2d');
+
+    function dibujarEnEscala() {
+      // Calcular el factor de escala basado en el tamaño del segundo canvas
+      var factorEscalaX = canvasEscala.width / canvasOriginal.width;
+      var factorEscalaY = canvasEscala.height / canvasOriginal.height;
+
+      // Mantén la proporción de aspecto de 4:3
+      var factorEscala = Math.min(factorEscalaX, factorEscalaY);
+
+      // Ajusta el ancho y el alto para mantener la proporción
+      var anchoVisible = canvasOriginal.width * factorEscala;
+      var altoVisible = canvasOriginal.height * factorEscala;
+
+      // Centra el primer canvas dentro del segundo
+      var xVisible = (canvasEscala.width - anchoVisible) / 2;
+      var yVisible = (canvasEscala.height - altoVisible) / 2;
+
+      // Limpiar el segundo canvas
+      ctxEscala.clearRect(0, 0, canvasEscala.width, canvasEscala.height);
+
+      // Dibujar sólo la parte visible del primer canvas en el segundo
+      ctxEscala.drawImage(canvasOriginal, 0, 0, canvasOriginal.width, canvasOriginal.height, xVisible, yVisible, anchoVisible, altoVisible);
+      }
+
+    // Función para calcular el tamaño del segundo canvas basado en el tamaño del dispositivo
+    function calcularTamañoCanvas() {
+      // Establecer el tamaño del segundo canvas
+      canvasEscala.width = Math.min(1024, window.innerWidth);
+        
+      // Asegurar que la altura no supere los 768 píxeles
+      var alturaMaxima = Math.min(768, Math.round(window.innerWidth * 3 / 4));
+      canvasEscala.height = Math.min(alturaMaxima, window.innerHeight);
+
+      dibujarEnEscala();
+    }
+
+    window.addEventListener('resize', calcularTamañoCanvas);
+
+    calcularTamañoCanvas();
 
     document.getElementById('inputArchivo').addEventListener('change', function (e) {
       var archivo = e.target.files[0];
@@ -65,6 +107,7 @@
             }
           }
         }
+        dibujarEnEscala();
       };
       reader.readAsArrayBuffer(archivo);
     }, false);
