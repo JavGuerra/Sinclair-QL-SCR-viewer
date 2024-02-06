@@ -25,14 +25,16 @@
 
   <div id="controles">
     <input type="file" id="inputArchivo" />
-    <a href="index.html">Mode&nbsp;8?</a>
-    <button id="descargar">Download&nbsp;PNG</button>
+    <a href="index.html" role="button" aria-label="Switch to Mode 8">Mode&nbsp;8?</a>
+    <button id="descargar" aria-disabled="true">Download&nbsp;PNG</button>
   </div>
 
-  <canvas id="canvasImagen" width="1024" height="768" style="display:none;"></canvas>
-  <canvas id="canvasEscala" class="canvas-escala"></canvas>
+  <role="region" aria-label="Image Display Area">
+    <canvas id="canvasImagen" width="1024" height="768" style="display:none;"></canvas>
+    <canvas id="canvasEscala" class="canvas-escala"></canvas>
+  </div>
   
-  <p><small>v1.0 · 2024 Javier Guerra · <a href="https://github.com/JavGuerra/qlscrview">The code</a></small></p>
+  <p><small>v1.1 · 2024 Javier Guerra · <a href="https://github.com/JavGuerra/qlscrview">The code</a></small></p>
 
   <script>
     var canvasOriginal, canvasEscala, ctx, ctxEscala, botonDescargar, inputArchivo;
@@ -124,7 +126,9 @@
           }
         }
         dibujarEnEscala();
+
         botonDescargar.disabled = false;
+        botonDescargar.setAttribute("aria-disabled", "false");
       };
       reader.readAsArrayBuffer(archivo);
     }
