@@ -5,7 +5,7 @@ By: Javier Guerra
 
 This program load and display Sinclair QL computer screens.
 
-![snapshot](docs/qlscrview.png)
+![snapshot](qlscrview.png)
 
 [Go to the APP online](https://javguerra.github.io/qlscrview/)
 
