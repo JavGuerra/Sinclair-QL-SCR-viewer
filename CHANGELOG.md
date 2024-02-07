@@ -1,5 +1,9 @@
 # QL SCR View
 
+__v1.2 - 2024-02-05__  
+- Unificados ambos HTML en uno solo.
+- El botón swich cambia el modo de visualización de la imagen cargada.
+
 __v1.1 - 2024-02-05__  
 - Revisada la accesibilidad de la aplicación hasta el momento.
 

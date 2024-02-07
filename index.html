@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sinclair QL SCR View</title>
+  <meta name="description" content="Load and display Sinclair QL computer classic screens." />
+  <meta name="author" content="Javier Guerra" />
+  <style>
+    body{ display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0; background-color: #ddd; font-family: Arial, sans-serif; font-size: 12px;}
+    h1{ font-weight: bold; margin: 15px 0 5px;}
+    #controles{ display: flex; justify-content: center; align-items: center;}
+    #modoSwitch{ background-color: #4CAF50; color: white; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border: none; margin-left: 20px;}
+    #descargar{ margin-left: 7px;}
+    #descargar:disabled{ cursor: not-allowed;}
+    #descargar:enabled{ cursor: default;}
+    #inputArchivo{ margin: 10px 0;}
+    #canvasImagen, #canvasEscala{ background-color: #ccc;}
+  </style>
+</head>
+
+<body>
+  <h1>Sinclair QL SCR View</h1>
+
+  <div id="controles">
+    <input type="file" id="inputArchivo" />
+    <button id="modoSwitch" role="switch" aria-checked="false" aria-label="Switch mode">MODE&nbsp;4?</button>
+    <button id="descargar" aria-disabled="true">Download&nbsp;PNG</button>
+  </div>
+
+  <div role="region" aria-label="Image Display Area">
+    <canvas id="canvasImagen" width="1024" height="768" style="display:none;"></canvas>
+    <canvas id="canvasEscala" class="canvas-escala"></canvas>
+  </div>
+
+  <p><small>v1.2 · 2024 Javier Guerra · <a href="https://github.com/JavGuerra/qlscrview">The code</a></small></p>
+
+  <script>
+    var canvasOriginal, canvasEscala, ctx, ctxEscala, modoSwitch, isSwitchOn, botonDescargar, inputArchivo;
+
+    window.addEventListener('load', function () {
+      canvasOriginal = document.getElementById('canvasImagen');
+      canvasEscala = document.getElementById('canvasEscala');
+      ctx = canvasOriginal.getContext('2d');
+      ctxEscala = canvasEscala.getContext('2d');
+
+      modoSwitch = document.getElementById('modoSwitch');
+      botonDescargar = document.getElementById('descargar');
+      inputArchivo = document.getElementById('inputArchivo');
+
+      botonDescargar.disabled = true;
+      inputArchivo.value = '';
+      isSwitchOn = false;
+
+      modoSwitch.addEventListener('click', estadoInterruptor);
+      botonDescargar.addEventListener('click', descargarComoPNG);
+      inputArchivo.addEventListener('change', function (e) { manejadorArchivo(e, 8); })
+      window.addEventListener('resize', calcularTamañoCanvas);
+
+      calcularTamañoCanvas();
+    });
+
+    function estadoInterruptor() {
+      isSwitchOn = !isSwitchOn;
+      var nuevoModo = String(isSwitchOn);
+      modoSwitch.setAttribute('aria-checked', nuevoModo);
+      modoSwitch.innerText = `MODE\u00A0${nuevoModo === 'true' ? 8 : 4}?`;
+      cambiarManejadorArchivo(isSwitchOn);
+
+      var event = new Event('change');
+      inputArchivo.dispatchEvent(event);
+    }
+
+    function cambiarManejadorArchivo(modoActivo) {
+      inputArchivo.removeEventListener('change', manejadorArchivo);
+      inputArchivo.addEventListener('change', function (e) {
+        manejadorArchivo(e, modoActivo ? 4 : 8);
+      });
+    }
+
+    function dibujarEnEscala() {
+      // Calcular el factor de escala basado en el tamaño del segundo canvas
+      var factorEscalaX = canvasEscala.width / canvasOriginal.width;
+      var factorEscalaY = canvasEscala.height / canvasOriginal.height;
+      // Mantén la proporción de aspecto de 4:3
+      var factorEscala = Math.min(factorEscalaX, factorEscalaY);
+      // Ajusta el ancho y el alto para mantener la proporción
+      var anchoVisible = canvasOriginal.width * factorEscala;
+      var altoVisible = canvasOriginal.height * factorEscala;
+      // Centra el primer canvas dentro del segundo
+      var xVisible = (canvasEscala.width - anchoVisible) / 2;
+      var yVisible = (canvasEscala.height - altoVisible) / 2;
+      // Limpiar el segundo canvas
+      ctxEscala.clearRect(0, 0, canvasEscala.width, canvasEscala.height);
+      // Dibujar sólo la parte visible del primer canvas en el segundo
+      ctxEscala.drawImage(canvasOriginal, 0, 0, canvasOriginal.width, canvasOriginal.height, xVisible, yVisible, anchoVisible, altoVisible);
+    }
+
+    // Función para calcular el tamaño del segundo canvas basado en el tamaño del dispositivo
+    function calcularTamañoCanvas() {
+      canvasEscala.width = Math.min(1024, window.innerWidth);
+      var alturaMaxima = Math.min(768, Math.round(window.innerWidth * 3 / 4));
+      canvasEscala.height = Math.min(alturaMaxima, window.innerHeight);
+      dibujarEnEscala();
+    }
+
+    function descargarComoPNG() {
+      var canvas = document.getElementById('canvasImagen');
+      var link = document.createElement('a');
+      var nombreArchivo = nombreArchivoOriginal || 'scr';
+      var sufijo = isSwitchOn ? '_QL4.png' : '_QL8.png';
+      link.download = nombreArchivo + sufijo;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    function manejadorArchivo(e, modo) {
+      ctx.clearRect(0, 0, canvasOriginal.width, canvasOriginal.height);
+      var archivo = e.target.files[0];
+      if (!archivo) return;
+      nombreArchivoOriginal = archivo.name;
+
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        var datos = e.target.result;
+        var buffer = new Uint8Array(datos);
+
+        for (var i = 0; i < 256; i++) {
+
+          if (modo === 8) {
+
+            for (var j = 0; j < 256; j += 4) {
+
+              var indice = (i * 256 + j) / 2;
+              var byteVerde = buffer[indice];
+              var byteColor = buffer[indice + 1];
+
+              for (var k = 0; k < 4; k++) {
+
+                var v = ((4 - k) * 2) - 1; // para v: 7, 5, 3, 1
+
+                var g = (byteVerde >> v) & 0x01 ? 255 : 0;
+                var r = (byteColor >> v) & 0x01 ? 255 : 0;
+                var b = (byteColor >> v - 1) & 0x01 ? 255 : 0;
+
+                ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+                ctx.fillRect((j + k) * 4, i * 3, 4, 3);
+              }
+            }
+
+          } else {
+
+            for (var j = 0; j < 512; j += 8) {
+
+              var indice = (i * 256 + (j / 2)) / 2;
+              var byteVerde = buffer[indice];
+              var byteRojo = buffer[indice + 1];
+
+              for (var k = 0; k < 8; k++) {
+
+                var v = 8 - k - 1;
+
+                var g = (byteVerde >> v) & 0x01 ? 255 : 0;
+                var r = (byteRojo >> v) & 0x01 ? 255 : 0;
+                var b = r & g ? 255 : 0;
+
+                ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+                ctx.fillRect((j + k) * 2, i * 3, 2, 3);
+              }
+            }
+
+          }
+        }
+
+        dibujarEnEscala();
+
+        botonDescargar.disabled = false;
+        botonDescargar.setAttribute("aria-disabled", "false");
+      };
+      reader.readAsArrayBuffer(archivo);
+    }
+  </script>
+
+</body>
+
+</html>

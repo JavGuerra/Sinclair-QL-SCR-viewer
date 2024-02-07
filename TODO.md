@@ -1,6 +1,6 @@
 # TO-DO
 
-- Unify both modes into a single HTML.
+- Refine the drawing of the image.
 - A switch to toggle between mode 4 and mode 8 before and even after loading the image.
 - Add more screen modes taking into account the following information: (1)
 

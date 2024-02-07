@@ -1,5 +1,5 @@
 # QL SCR View
-v1.1
+v1.2
 
 By: Javier Guerra
 
