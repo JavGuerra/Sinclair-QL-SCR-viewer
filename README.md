@@ -3,7 +3,7 @@ v1.2
 
 By: Javier Guerra
 
-This program load and display Sinclair QL computer screens.
+This program load and display Sinclair QL computer classic screens.
 
 ![snapshot](qlscrview.png)
 
