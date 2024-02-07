@@ -55,7 +55,7 @@
 
       modoSwitch.addEventListener('click', estadoInterruptor);
       botonDescargar.addEventListener('click', descargarComoPNG);
-      inputArchivo.addEventListener('change', function (e) { manejadorArchivo(e, 8); })
+      inputArchivo.addEventListener('change', e => manejadorArchivo(e))
       window.addEventListener('resize', calcularTamañoCanvas);
 
       calcularTamañoCanvas();
@@ -66,17 +66,9 @@
       var nuevoModo = String(isSwitchOn);
       modoSwitch.setAttribute('aria-checked', nuevoModo);
       modoSwitch.innerText = `MODE\u00A0${nuevoModo === 'true' ? 8 : 4}?`;
-      cambiarManejadorArchivo(isSwitchOn);
-
+      // Lanza el cambio de modo
       var event = new Event('change');
       inputArchivo.dispatchEvent(event);
-    }
-
-    function cambiarManejadorArchivo(modoActivo) {
-      inputArchivo.removeEventListener('change', manejadorArchivo);
-      inputArchivo.addEventListener('change', function (e) {
-        manejadorArchivo(e, modoActivo ? 4 : 8);
-      });
     }
 
     function dibujarEnEscala() {
@@ -115,7 +107,7 @@
       link.click();
     }
 
-    function manejadorArchivo(e, modo) {
+    function manejadorArchivo(e) {
       ctx.clearRect(0, 0, canvasOriginal.width, canvasOriginal.height);
       var archivo = e.target.files[0];
       if (!archivo) return;
@@ -128,7 +120,7 @@
 
         for (var i = 0; i < 256; i++) {
 
-          if (modo === 8) {
+          if (!isSwitchOn) {
 
             for (var j = 0; j < 256; j += 4) {
 

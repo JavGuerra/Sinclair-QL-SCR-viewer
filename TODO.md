@@ -1,9 +1,6 @@
 # TO-DO
 
-- Refine the drawing of the image.
-- A switch to toggle between mode 4 and mode 8 before and even after loading the image.
 - Add more screen modes taking into account the following information: (1)
-
 
 __(1) Info by Dilwyn Jones__
 
