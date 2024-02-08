@@ -1,10 +1,10 @@
 # QL SCR View
 
-__v1.2 - 2024-02-05__  
+__v1.2 - 2024-02-07__  
 - Unificados ambos HTML en uno solo.
 - El botón switch cambia el modo de visualización de la imagen cargada.
 
-__v1.1 - 2024-02-05__  
+__v1.1 - 2024-02-06__  
 - Revisada la accesibilidad de la aplicación hasta el momento.
 
 __v1.0 - 2024-02-05__  
