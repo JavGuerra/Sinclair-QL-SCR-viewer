@@ -1,11 +1,5 @@
-# TO-DO
-
-- A routine that tries to guess if a screen is in mode 4 or mode 8.
-
-    __Info by Dilwyn Jones__
-
-    It can be done by looking at the flash bits. If very few or no flash bits are set, it is most likely mode 8. In mode 4, the 'flash' bits within the color word would be green pixel bits, so unless there is no green on the mode 4 screen, this is a fairly accurate way (although not foolproof!) to check the way.
-
+# TO DO
+Sinclair QL SCR viewer
 
 - Add more screen modes considering the following information:
 

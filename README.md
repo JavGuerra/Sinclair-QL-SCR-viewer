@@ -1,5 +1,5 @@
 # Sinclair QL SCR viewer
-v1.2
+v1.3
 
 By: Javier Guerra
 
@@ -20,6 +20,8 @@ To represent the colors of the pixels in mode 8, the first byte of the file that
 To represent pixel colors in mode 4, the pattern of each of the two bytes is GGGGGGGG and RRRRRRRR respectively. The blue B value is changed to 255 if the G and R values are 1.
 
 To preserve the 4:3 aspect ratio of the image, the resolution of the displayed image is 1024x768, so that for each pixel in the original image in mode 8, 4 pixels are painted horizontally and 3 pixels vertically, and, For each pixel in mode 4, two pixels are painted horizontally and three vertically.
+
+The application automatically detects the image mode knowing that, if the entire image has its flash bits (F) set to 0, it is most certainly an image in mode 8, and that if there are any bits that correspond to the bits green color of the image in mode 4, then it is an image in this mode, and makes the switch to the appropriate display mode.
 
 Once the image is loaded in the application, it is possible to change the display mode via the mode button.
 
@@ -44,6 +46,8 @@ Para representar los colores de los pixeles en modo 8, el primer byte del archiv
 Para representar los colores de los pixeles en modo 4, el patrón de cada uno de los dos bytes es GGGGGGGG y RRRRRRRR respectivamente. El valor B azul se cambia a 255 si los valores G y R están a 1.
 
 Para conservar la proporción 4:3 de la imagen, la resolución de la imagen mostrada es de 1024x768, de tal forma que, por cada pixel en la imagen original en el modo 8 se pintan 4 pixeles en horizontal y 3 pixeles en vertical, y por cada pixel en modo 4 se pintan dos píxeles en horizontal y tres en vertical.
+
+La aplicación detecta automáticamente el modo de imagen sabiendo que, si toda la imagen tiene sus bit de flash (F) a 0, con mucha seguridad se trata de una imagen en modo 8, y que si hay algún bit que se corresponde con los bits de color verde de la imagen en modo 4, entonces se trata de una imagen en este modo, y hace el cambio al modo de visualización adecuado.
 
 Una vez cargada la imagen en la aplicación, es posible cambiar el modo de visualización a través del botón de modo.
 

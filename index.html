@@ -34,11 +34,11 @@
     <canvas id="canvasEscala" class="canvas-escala"></canvas>
   </div>
 
-  <p><small>v1.2 · 2024 Javier Guerra · <a href="https://github.com/JavGuerra/qlscrview">The code</a></small></p>
+  <p><small>v1.3 · 2024 Javier Guerra · <a href="https://github.com/JavGuerra/qlscrview">The code</a></small></p>
 
   <script>
     var canvasOriginal, canvasEscala, ctx, ctxEscala, modoSwitch, isSwitchOn,
-      botonDescargar, inputArchivo, event;
+      botonDescargar, inputArchivo, nombreArchivo, nombreAnterior, event;
 
     window.addEventListener('load', function () {
       canvasOriginal = document.getElementById('canvasImagen');
@@ -53,10 +53,12 @@
       isSwitchOn = false;
       botonDescargar.disabled = true;
       inputArchivo.value = '';
+      nombreArchivo = '';
+      nombreAnterior = '';
 
       modoSwitch.addEventListener('click', estadoInterruptor);
       botonDescargar.addEventListener('click', descargarComoPNG);
-      inputArchivo.addEventListener('change', e => manejadorArchivo(e))
+      inputArchivo.addEventListener('change', e => manejadorArchivo(e));
       window.addEventListener('resize', calcularTamañoCanvas);
       event = new Event('change');
 
@@ -100,9 +102,9 @@
 
     function descargarComoPNG() {
       var link = document.createElement('a');
-      var nombreArchivo = nombreArchivoOriginal || 'scr';
+      var nombre = nombreArchivo || 'scr';
       var sufijo = isSwitchOn ? '_QL4.png' : '_QL8.png';
-      link.download = nombreArchivo + sufijo;
+      link.download = nombre + sufijo;
       link.href = canvasOriginal.toDataURL('image/png');
       link.click();
     }
@@ -112,7 +114,11 @@
 
       var archivo = e.target.files[0];
       if (!archivo) return;
-      nombreArchivoOriginal = archivo.name;
+      nombreArchivo = archivo.name;
+
+      var cambioDeArchivo = nombreArchivo === nombreAnterior ? false : true;
+
+      nombreAnterior = nombreArchivo;
 
       var reader = new FileReader();
       reader.onload = function (e) {
@@ -120,9 +126,11 @@
         var datos = e.target.result;
         var buffer = new Uint8Array(datos);
 
-        for (var i = 0; i < 256; i++) {
+        if (cambioDeArchivo && isSwitchOn === chequearBitsCeros(buffer)) estadoInterruptor();
 
-          if (!isSwitchOn) {
+        if (!isSwitchOn) {
+
+          for (var i = 0; i < 256; i++) {
 
             for (var j = 0; j < 256; j += 4) {
 
@@ -142,8 +150,11 @@
                 ctx.fillRect((j + k) * 4, i * 3, 4, 3);
               }
             }
+          }
 
-          } else {
+        } else {
+
+          for (var i = 0; i < 256; i++) {
 
             for (var j = 0; j < 512; j += 8) {
 
@@ -163,17 +174,30 @@
                 ctx.fillRect((j + k) * 2, i * 3, 2, 3);
               }
             }
-
           }
+
         }
 
         dibujarEnEscala();
 
         botonDescargar.disabled = false;
         botonDescargar.setAttribute("aria-disabled", "false");
+
+        cambioDeArchivo = false;
       };
 
       reader.readAsArrayBuffer(archivo);
+    }
+
+    function chequearBitsCeros(buffer) {
+      for (let i = 0; i < buffer.length; i += 2) {
+        let byteActual = buffer[i];
+        // Verificar si los bits  2,  4,  6 y  8 son cero
+        if ((byteActual & 0b01010101) !== 0) {
+          return false; // Al menos uno de los bits no es cero
+        }
+      }
+      return true;
     }
   </script>
 

@@ -1,4 +1,8 @@
-# QL SCR View
+# Changelog  
+Sinclair QL SCR viewer
+
+__v1.3 - 2024-02-08__ 
+- Detección automática del modo de visualización al cargar la imagen.
 
 __v1.2 - 2024-02-07__  
 - Unificados ambos HTML en uno solo.
