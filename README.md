@@ -1,4 +1,4 @@
-# QL SCR View
+# Sinclair QL SCR viewer
 v1.2
 
 By: Javier Guerra

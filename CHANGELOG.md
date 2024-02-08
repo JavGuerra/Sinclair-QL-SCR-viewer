@@ -3,6 +3,7 @@
 __v1.2 - 2024-02-07__  
 - Unificados ambos HTML en uno solo.
 - El botón switch cambia el modo de visualización de la imagen cargada.
+- Optimización de código.
 
 __v1.1 - 2024-02-06__  
 - Revisada la accesibilidad de la aplicación hasta el momento.

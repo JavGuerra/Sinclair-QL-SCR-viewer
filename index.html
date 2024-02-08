@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sinclair QL SCR View</title>
+  <title>Sinclair QL SCR viewer</title>
   <meta name="description" content="This program loads and displays classic Sinclair QL computer screens." />
   <meta name="author" content="Javier Guerra" />
   <style>
@@ -21,7 +21,7 @@
 </head>
 
 <body>
-  <h1>Sinclair QL SCR View</h1>
+  <h1>Sinclair QL SCR viewer</h1>
 
   <div id="controles">
     <input type="file" id="inputArchivo" />
@@ -37,7 +37,8 @@
   <p><small>v1.2 · 2024 Javier Guerra · <a href="https://github.com/JavGuerra/qlscrview">The code</a></small></p>
 
   <script>
-    var canvasOriginal, canvasEscala, ctx, ctxEscala, modoSwitch, isSwitchOn, botonDescargar, inputArchivo;
+    var canvasOriginal, canvasEscala, ctx, ctxEscala, modoSwitch, isSwitchOn,
+      botonDescargar, inputArchivo, event;
 
     window.addEventListener('load', function () {
       canvasOriginal = document.getElementById('canvasImagen');
@@ -49,14 +50,15 @@
       botonDescargar = document.getElementById('descargar');
       inputArchivo = document.getElementById('inputArchivo');
 
+      isSwitchOn = false;
       botonDescargar.disabled = true;
       inputArchivo.value = '';
-      isSwitchOn = false;
 
       modoSwitch.addEventListener('click', estadoInterruptor);
       botonDescargar.addEventListener('click', descargarComoPNG);
       inputArchivo.addEventListener('change', e => manejadorArchivo(e))
       window.addEventListener('resize', calcularTamañoCanvas);
+      event = new Event('change');
 
       calcularTamañoCanvas();
     });
@@ -67,8 +69,15 @@
       modoSwitch.setAttribute('aria-checked', nuevoModo);
       modoSwitch.innerText = `MODE\u00A0${nuevoModo === 'true' ? 8 : 4}?`;
       // Lanza el cambio de modo
-      var event = new Event('change');
       inputArchivo.dispatchEvent(event);
+    }
+
+    // Calcular el tamaño del segundo canvas basado en el tamaño del dispositivo
+    function calcularTamañoCanvas() {
+      canvasEscala.width = Math.min(1024, window.innerWidth);
+      var alturaMaxima = Math.min(768, Math.round(window.innerWidth * 3 / 4));
+      canvasEscala.height = Math.min(alturaMaxima, window.innerHeight);
+      dibujarEnEscala();
     }
 
     function dibujarEnEscala() {
@@ -89,32 +98,25 @@
       ctxEscala.drawImage(canvasOriginal, 0, 0, canvasOriginal.width, canvasOriginal.height, xVisible, yVisible, anchoVisible, altoVisible);
     }
 
-    // Función para calcular el tamaño del segundo canvas basado en el tamaño del dispositivo
-    function calcularTamañoCanvas() {
-      canvasEscala.width = Math.min(1024, window.innerWidth);
-      var alturaMaxima = Math.min(768, Math.round(window.innerWidth * 3 / 4));
-      canvasEscala.height = Math.min(alturaMaxima, window.innerHeight);
-      dibujarEnEscala();
-    }
-
     function descargarComoPNG() {
-      var canvas = document.getElementById('canvasImagen');
       var link = document.createElement('a');
       var nombreArchivo = nombreArchivoOriginal || 'scr';
       var sufijo = isSwitchOn ? '_QL4.png' : '_QL8.png';
       link.download = nombreArchivo + sufijo;
-      link.href = canvas.toDataURL('image/png');
+      link.href = canvasOriginal.toDataURL('image/png');
       link.click();
     }
 
     function manejadorArchivo(e) {
       ctx.clearRect(0, 0, canvasOriginal.width, canvasOriginal.height);
+
       var archivo = e.target.files[0];
       if (!archivo) return;
       nombreArchivoOriginal = archivo.name;
 
       var reader = new FileReader();
       reader.onload = function (e) {
+
         var datos = e.target.result;
         var buffer = new Uint8Array(datos);
 
@@ -170,6 +172,7 @@
         botonDescargar.disabled = false;
         botonDescargar.setAttribute("aria-disabled", "false");
       };
+
       reader.readAsArrayBuffer(archivo);
     }
   </script>
