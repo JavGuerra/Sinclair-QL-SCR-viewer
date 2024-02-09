@@ -58,7 +58,7 @@
 
       modoSwitch.addEventListener('click', estadoInterruptor);
       botonDescargar.addEventListener('click', descargarComoPNG);
-      inputArchivo.addEventListener('change', e => manejadorArchivo(e));
+      inputArchivo.addEventListener('change', function(e){manejadorArchivo(e)});
       window.addEventListener('resize', calcularTamañoCanvas);
       event = new Event('change');
 

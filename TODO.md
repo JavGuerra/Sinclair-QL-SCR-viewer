@@ -1,6 +1,10 @@
 # TO DO
 Sinclair QL SCR viewer
 
+- Optimize the code.
+
+- Avoid reading the file every time you change mode.
+
 - Add more screen modes considering the following information:
 
     __Info by Dilwyn Jones__
