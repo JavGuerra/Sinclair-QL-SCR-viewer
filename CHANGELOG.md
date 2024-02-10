@@ -1,6 +1,9 @@
 # Changelog  
 Sinclair QL SCR viewer
 
+__v1.4 - 2024-02-10__ 
+- Se evitó leer el archivo cada vez que se cambia de modo.
+
 __v1.3 - 2024-02-08__ 
 - Detección automática del modo de visualización al cargar la imagen.
 

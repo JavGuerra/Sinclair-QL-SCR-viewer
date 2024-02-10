@@ -14,8 +14,8 @@
     #modoSwitch{ background-color: #4CAF50; color: white; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border: none; margin-left: 20px;}
     #descargar{ margin-left: 7px;}
     #descargar:disabled{ cursor: not-allowed;}
-    #descargar:enabled{ cursor: default;}
-    #inputArchivo{ margin: 10px 0;}
+    #descargar:enabled{ cursor: pointer;}
+    #inputArchivo{ margin: 10px 0; cursor: pointer;}
     #canvasImagen, #canvasEscala{ background-color: #ccc;}
   </style>
 </head>
@@ -34,11 +34,11 @@
     <canvas id="canvasEscala" class="canvas-escala"></canvas>
   </div>
 
-  <p><small>v1.3 · 2024 Javier Guerra · <a href="https://github.com/JavGuerra/qlscrview">The code</a></small></p>
+  <p><small>v1.4 · 2024 Javier Guerra · <a href="https://github.com/JavGuerra/qlscrview">The code</a></small></p>
 
   <script>
-    var canvasOriginal, canvasEscala, ctx, ctxEscala, modoSwitch, isSwitchOn,
-      botonDescargar, inputArchivo, nombreArchivo, nombreAnterior, event;
+    var canvasOriginal, canvasEscala, ctx, ctxEscala, botonSwitch, isSwitchOn,
+      botonDescargar, inputArchivo, buffer, nombreArchivo, nombreAnterior, event;
 
     window.addEventListener('load', function () {
       canvasOriginal = document.getElementById('canvasImagen');
@@ -46,7 +46,7 @@
       ctx = canvasOriginal.getContext('2d');
       ctxEscala = canvasEscala.getContext('2d');
 
-      modoSwitch = document.getElementById('modoSwitch');
+      botonSwitch = document.getElementById('modoSwitch');
       botonDescargar = document.getElementById('descargar');
       inputArchivo = document.getElementById('inputArchivo');
 
@@ -54,9 +54,10 @@
       botonDescargar.disabled = true;
       inputArchivo.value = '';
       nombreArchivo = '';
-      nombreAnterior = '';
+      nombreAnterior = null;
+      buffer = null;
 
-      modoSwitch.addEventListener('click', estadoInterruptor);
+      botonSwitch.addEventListener('click', estadoInterruptor);
       botonDescargar.addEventListener('click', descargarComoPNG);
       inputArchivo.addEventListener('change', function(e){manejadorArchivo(e)});
       window.addEventListener('resize', calcularTamañoCanvas);
@@ -68,8 +69,8 @@
     function estadoInterruptor() {
       isSwitchOn = !isSwitchOn;
       var nuevoModo = String(isSwitchOn);
-      modoSwitch.setAttribute('aria-checked', nuevoModo);
-      modoSwitch.innerText = `MODE\u00A0${nuevoModo === 'true' ? 8 : 4}?`;
+      botonSwitch.setAttribute('aria-checked', nuevoModo);
+      botonSwitch.innerText = `MODE\u00A0${nuevoModo === 'true' ? 8 : 4}?`;
       // Lanza el cambio de modo
       inputArchivo.dispatchEvent(event);
     }
@@ -116,80 +117,26 @@
       if (!archivo) return;
       nombreArchivo = archivo.name;
 
-      var cambioDeArchivo = nombreArchivo === nombreAnterior ? false : true;
+      var cambioDeArchivo = nombreArchivo !== nombreAnterior;
 
-      nombreAnterior = nombreArchivo;
-
-      var reader = new FileReader();
-      reader.onload = function (e) {
-
-        var datos = e.target.result;
-        var buffer = new Uint8Array(datos);
-
-        if (cambioDeArchivo && isSwitchOn === chequearBitsCeros(buffer)) estadoInterruptor();
-
-        if (!isSwitchOn) {
-
-          for (var i = 0; i < 256; i++) {
-
-            for (var j = 0; j < 256; j += 4) {
-
-              var indice = (i * 256 + j) / 2;
-              var byteVerde = buffer[indice];
-              var byteColor = buffer[indice + 1];
-
-              for (var k = 0; k < 4; k++) {
-
-                var v = ((4 - k) * 2) - 1; // para v: 7, 5, 3, 1
-
-                var g = (byteVerde >> v) & 0x01 ? 255 : 0;
-                var r = (byteColor >> v) & 0x01 ? 255 : 0;
-                var b = (byteColor >> v - 1) & 0x01 ? 255 : 0;
-
-                ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
-                ctx.fillRect((j + k) * 4, i * 3, 4, 3);
-              }
-            }
-          }
-
-        } else {
-
-          for (var i = 0; i < 256; i++) {
-
-            for (var j = 0; j < 512; j += 8) {
-
-              var indice = (i * 256 + (j / 2)) / 2;
-              var byteVerde = buffer[indice];
-              var byteRojo = buffer[indice + 1];
-
-              for (var k = 0; k < 8; k++) {
-
-                var v = 8 - k - 1;
-
-                var g = (byteVerde >> v) & 0x01 ? 255 : 0;
-                var r = (byteRojo >> v) & 0x01 ? 255 : 0;
-                var b = r & g ? 255 : 0;
-
-                ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
-                ctx.fillRect((j + k) * 2, i * 3, 2, 3);
-              }
-            }
-          }
-
-        }
-
-        dibujarEnEscala();
-
-        botonDescargar.disabled = false;
-        botonDescargar.setAttribute("aria-disabled", "false");
-
-        cambioDeArchivo = false;
-      };
-
-      reader.readAsArrayBuffer(archivo);
+      if (cambioDeArchivo || buffer === null) {
+        var reader = new FileReader();
+        reader.onload = function (e) {
+          buffer = new Uint8Array(e.target.result);
+          nombreAnterior = nombreArchivo;
+          if (isSwitchOn === chequearBitsCeros()) estadoInterruptor();
+          parser() 
+        };
+        reader.readAsArrayBuffer(archivo);
+      } else {
+        parser()
+      }
+      botonDescargar.disabled = false;
+      botonDescargar.setAttribute("aria-disabled", "false");
+      cambioDeArchivo = false;
     }
-
-    function chequearBitsCeros(buffer) {
+    
+    function chequearBitsCeros() {
       for (let i = 0; i < buffer.length; i += 2) {
         let byteActual = buffer[i];
         // Verificar si los bits  2,  4,  6 y  8 son cero
@@ -199,8 +146,55 @@
       }
       return true;
     }
+
+    function parser() {
+      if (!isSwitchOn) {
+        for (var i = 0; i < 256; i++) {
+
+          for (var j = 0; j < 256; j += 4) {
+
+            var indice = (i * 256 + j) / 2;
+            var byteVerde = buffer[indice];
+            var byteColor = buffer[indice + 1];
+
+            for (var k = 0; k < 4; k++) {
+
+              var v = ((4 - k) * 2) - 1; // para v: 7, 5, 3, 1
+
+              var g = (byteVerde >> v) & 0x01 ? 255 : 0;
+              var r = (byteColor >> v) & 0x01 ? 255 : 0;
+              var b = (byteColor >> v - 1) & 0x01 ? 255 : 0;
+
+              ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+              ctx.fillRect((j + k) * 4, i * 3, 4, 3);
+            }
+          }
+        }
+      } else {
+        for (var i = 0; i < 256; i++) {
+
+          for (var j = 0; j < 512; j += 8) {
+
+            var indice = (i * 256 + (j / 2)) / 2;
+            var byteVerde = buffer[indice];
+            var byteRojo = buffer[indice + 1];
+
+            for (var k = 0; k < 8; k++) {
+
+              var v = 8 - k - 1;
+
+              var g = (byteVerde >> v) & 0x01 ? 255 : 0;
+              var r = (byteRojo >> v) & 0x01 ? 255 : 0;
+              var b = r & g ? 255 : 0;
+
+              ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+              ctx.fillRect((j + k) * 2, i * 3, 2, 3);
+            }
+          }
+        }
+      }
+      dibujarEnEscala();
+    }
   </script>
-
 </body>
-
 </html>
