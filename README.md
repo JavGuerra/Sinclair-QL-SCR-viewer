@@ -1,5 +1,5 @@
 # Sinclair QL SCR viewer
-v1.4
+v1.0
 
 By: Javier Guerra
 
@@ -9,9 +9,9 @@ This application loads and displays classic Sinclair QL computer screens.
 
 [Go to the application online](https://javguerra.github.io/qlscrview/)
 
-Note: This application requires JavaScript ES5 to work.
+Note: Requires JavaScript ES5 or higher to work.
 
-__The APP__
+## Info
 
 This application is an HTML file that allows an image file in QL format located locally or remotely to be loaded into the browser, using an input button, and displays its content without CORS errors occurring, and without using a server.
 
@@ -33,7 +33,7 @@ The 'index.html' file is self-contained, and can be downloaded and used on an of
 
 To test it, you can use the file 'qlcolors_scr' which is a screen image in mode 8.
 
-__Spanish__
+__In Spanish__
 
 Esta aplicación es un archivo HTML que permite cargar en el navegador un archivo de imagen en formato QL ubicado en local o en remoto, mediante un botón input, y mostrar su contenido sin que ocurran errores de CORS, y sin usar un servidor.
 
@@ -56,4 +56,4 @@ El archivo 'index.html' es autocontenido, y se puede descargar y utilizar en una
 Para probarlo, puedes usar el archivo 'qlcolors_scr' que es una imagen de pantalla en modo 8.
 
 ---
-GPL 2024
+2024 · GPL v3 license

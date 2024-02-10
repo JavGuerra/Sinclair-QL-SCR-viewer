@@ -1,22 +1,23 @@
 # Changelog  
 Sinclair QL SCR viewer
 
-__v1.4 - 2024-02-10__ 
+__v1.0 - 2024-02-10__ 
 - Se evitó leer el archivo cada vez que se cambia de modo.
 - Se añadió control de errores al cargar el archivo.
+- Cambiada la numeración de versiones.
 
-__v1.3 - 2024-02-08__ 
+__v0.9 - 2024-02-08__ 
 - Detección automática del modo de visualización al cargar la imagen.
 
-__v1.2 - 2024-02-07__  
+__v0.8 - 2024-02-07__  
 - Unificados ambos HTML en uno solo.
 - El botón switch cambia el modo de visualización de la imagen cargada.
 - Optimización de código.
 
-__v1.1 - 2024-02-06__  
+__v0.7 - 2024-02-06__  
 - Revisada la accesibilidad de la aplicación hasta el momento.
 
-__v1.0 - 2024-02-05__  
+__v0.6 - 2024-02-05__  
 - Permite el uso de la aplicación en distintos dispositivos (responsive).
 - Optimización de código.
 
