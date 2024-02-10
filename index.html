@@ -125,11 +125,11 @@
           buffer = new Uint8Array(e.target.result);
           nombreAnterior = nombreArchivo;
           if (isSwitchOn === chequearBitsCeros()) estadoInterruptor();
-          parser() 
+          parser(); 
         };
         reader.readAsArrayBuffer(archivo);
       } else {
-        parser()
+        parser();
       }
       botonDescargar.disabled = false;
       botonDescargar.setAttribute("aria-disabled", "false");
