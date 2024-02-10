@@ -38,7 +38,7 @@
 
   <script>
     var canvasOriginal, canvasEscala, ctx, ctxEscala, botonSwitch, isSwitchOn,
-      botonDescargar, inputArchivo, buffer, nombreArchivo, nombreAnterior, event;
+      botonDescargar, inputArchivo, nombreArchivo, nombreAnterior, buffer, event;
 
     window.addEventListener('load', function () {
       canvasOriginal = document.getElementById('canvasImagen');
@@ -59,7 +59,7 @@
 
       botonSwitch.addEventListener('click', estadoInterruptor);
       botonDescargar.addEventListener('click', descargarComoPNG);
-      inputArchivo.addEventListener('change', function(e){manejadorArchivo(e)});
+      inputArchivo.addEventListener('change', manejadorArchivo);
       window.addEventListener('resize', calcularTamañoCanvas);
       event = new Event('change');
 
@@ -121,22 +121,31 @@
 
       if (cambioDeArchivo || buffer === null) {
         var reader = new FileReader();
+
+        reader.onerror = function(errorEvent) {
+          console.error(`Error reading file: ${errorEvent.target.error}`);
+          return;
+        };
+
         reader.onload = function (e) {
           buffer = new Uint8Array(e.target.result);
           nombreAnterior = nombreArchivo;
           if (isSwitchOn === chequearBitsCeros()) estadoInterruptor();
-          parser(); 
+          parser();
+          cambioDeArchivo = false;
         };
+
         reader.readAsArrayBuffer(archivo);
+
       } else {
         parser();
       }
-      if (!manejadorArchivo.ejecutado) {
-        manejadorArchivo.ejecutado = true;
+
+      if (!this.ejecutado) {
+        this.ejecutado = true;
         botonDescargar.disabled = false;
         botonDescargar.setAttribute("aria-disabled", "false");
       }
-      cambioDeArchivo = false;
     }
     
     function chequearBitsCeros() {
@@ -160,6 +169,7 @@
             var byteColor = buffer[indice + 1];
 
             for (var k = 0; k < 4; k++) {
+
               var v = ((4 - k) * 2) - 1; // para v: 7, 5, 3, 1
               var g = (byteVerde >> v) & 0x01 ? 255 : 0;
               var r = (byteColor >> v) & 0x01 ? 255 : 0;
@@ -170,6 +180,7 @@
             }
           }
         }
+        
       } else {
         for (var i = 0; i < 256; i++) {
           for (var j = 0; j < 512; j += 8) {
@@ -179,6 +190,7 @@
             var byteRojo = buffer[indice + 1];
 
             for (var k = 0; k < 8; k++) {
+
               var v = 8 - k - 1;
               var g = (byteVerde >> v) & 0x01 ? 255 : 0;
               var r = (byteRojo >> v) & 0x01 ? 255 : 0;
@@ -190,6 +202,7 @@
           }
         }
       }
+
       dibujarEnEscala();
     }
   </script>
