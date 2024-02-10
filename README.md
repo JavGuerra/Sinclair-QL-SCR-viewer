@@ -15,6 +15,8 @@ Note: Requires JavaScript ES5 or higher to work.
 
 This application is an HTML file that allows an image file in QL format located locally or remotely to be loaded into the browser, using an input button, and displays its content without CORS errors occurring, and without using a server.
 
+The resulting image can be downloaded in PNG format with a size of 1024x768 pixels.
+
 The application interprets the colors and format in MODE 8 and MODE 4 of the QL, with the colors of each pixel using the palette: black, blue, red, magenta, green, cyan, yellow and white for mode 8, and black, red, green and white for mode 4.
 
 To represent the colors of the pixels in mode 8, the first byte of the file that is read will have the green component of each pixel encoded in its bits, with the following pattern per byte: GFGFGFGF, the second byte will have the green components encoded in bits. red and blue color of each pixel, with the following pattern per byte: RBRBRBRB, with G being green, R red and B blue, and so on until the end of the file. The F (flash) value is not used. If a bit has a value of 0, the value of its color component is zero. If it has value 1, the value of its color component is 255.
@@ -27,8 +29,6 @@ The application automatically detects the image mode knowing that, if the entire
 
 Once the image is loaded in the application, it is possible to change the display mode via the mode button.
 
-The resulting image can be downloaded in PNG format with a size of 1024x768 pixels.
-
 The 'index.html' file is self-contained, and can be downloaded and used on an offline computer.
 
 To test it, you can use the file 'qlcolors_scr' which is a screen image in mode 8.
@@ -36,6 +36,8 @@ To test it, you can use the file 'qlcolors_scr' which is a screen image in mode 
 __In Spanish__
 
 Esta aplicación es un archivo HTML que permite cargar en el navegador un archivo de imagen en formato QL ubicado en local o en remoto, mediante un botón input, y mostrar su contenido sin que ocurran errores de CORS, y sin usar un servidor.
+
+La imagen resultante puede descargarse en formato PNG con un tamaño de 1024x768 pixels.
 
 La aplicación interpreta los colores y el formato en MODO 8 y en MODO 4 del QL, con los colores de cada pixel usando la paleta: negro, azul, rojo, magenta, verde, cian, amarillo y blanco para el modo 8, y negro, rojo, verde y blanco para el modo 4. 
 
@@ -49,11 +51,13 @@ La aplicación detecta automáticamente el modo de imagen sabiendo que, si toda 
 
 Una vez cargada la imagen en la aplicación, es posible cambiar el modo de visualización a través del botón de modo.
 
-La imagen resultante puede descargarse en formato PNG con un tamaño de 1024x768 pixels.
-
 El archivo 'index.html' es autocontenido, y se puede descargar y utilizar en una computadora fuera de línea.
 
 Para probarlo, puedes usar el archivo 'qlcolors_scr' que es una imagen de pantalla en modo 8.
+
+## Acknowledgments
+
+My thanks to Dilwyn Jones for providing ideas and suggestions for automatic mode detection and other screen formats.
 
 ---
 2024 · GPL v3 license
