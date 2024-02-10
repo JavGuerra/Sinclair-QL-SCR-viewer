@@ -131,8 +131,11 @@
       } else {
         parser();
       }
-      botonDescargar.disabled = false;
-      botonDescargar.setAttribute("aria-disabled", "false");
+      if (!manejadorArchivo.ejecutado) {
+        manejadorArchivo.ejecutado = true;
+        botonDescargar.disabled = false;
+        botonDescargar.setAttribute("aria-disabled", "false");
+      }
       cambioDeArchivo = false;
     }
     
@@ -150,7 +153,6 @@
     function parser() {
       if (!isSwitchOn) {
         for (var i = 0; i < 256; i++) {
-
           for (var j = 0; j < 256; j += 4) {
 
             var indice = (i * 256 + j) / 2;
@@ -158,9 +160,7 @@
             var byteColor = buffer[indice + 1];
 
             for (var k = 0; k < 4; k++) {
-
               var v = ((4 - k) * 2) - 1; // para v: 7, 5, 3, 1
-
               var g = (byteVerde >> v) & 0x01 ? 255 : 0;
               var r = (byteColor >> v) & 0x01 ? 255 : 0;
               var b = (byteColor >> v - 1) & 0x01 ? 255 : 0;
@@ -172,7 +172,6 @@
         }
       } else {
         for (var i = 0; i < 256; i++) {
-
           for (var j = 0; j < 512; j += 8) {
 
             var indice = (i * 256 + (j / 2)) / 2;
@@ -180,9 +179,7 @@
             var byteRojo = buffer[indice + 1];
 
             for (var k = 0; k < 8; k++) {
-
               var v = 8 - k - 1;
-
               var g = (byteVerde >> v) & 0x01 ? 255 : 0;
               var r = (byteRojo >> v) & 0x01 ? 255 : 0;
               var b = r & g ? 255 : 0;
