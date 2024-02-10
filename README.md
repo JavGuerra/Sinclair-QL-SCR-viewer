@@ -29,7 +29,7 @@ Once the image is loaded in the application, it is possible to change the displa
 
 The resulting image can be downloaded in PNG format with a size of 1024x768 pixels.
 
-The 'index.html' file is self-contained, and can be downloaded and used on your computer.
+The 'index.html' file is self-contained, and can be downloaded and used on an offline computer.
 
 To test it, you can use the file 'qlcolors_scr' which is a screen image in mode 8.
 
@@ -51,7 +51,7 @@ Una vez cargada la imagen en la aplicación, es posible cambiar el modo de visua
 
 La imagen resultante puede descargarse en formato PNG con un tamaño de 1024x768 pixels.
 
-El archivo 'index.html' es autocontenido, y se puede descargar y utilizar en su computadora.
+El archivo 'index.html' es autocontenido, y se puede descargar y utilizar en una computadora fuera de línea.
 
 Para probarlo, puedes usar el archivo 'qlcolors_scr' que es una imagen de pantalla en modo 8.
 
