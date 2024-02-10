@@ -17,7 +17,7 @@ __v1.1 - 2024-02-06__
 - Revisada la accesibilidad de la aplicación hasta el momento.
 
 __v1.0 - 2024-02-05__  
-- Permite el uso de la app en distintos dispositivos (responsive).
+- Permite el uso de la aplicación en distintos dispositivos (responsive).
 - Optimización de código.
 
 __v0.5 - 2024-02-05__  

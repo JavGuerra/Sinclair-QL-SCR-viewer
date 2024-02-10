@@ -3,13 +3,13 @@ v1.4
 
 By: Javier Guerra
 
-This program loads and displays classic Sinclair QL computer screens.
+This application loads and displays classic Sinclair QL computer screens.
 
 ![snapshot](qlscrview.png)
 
-[Go to the APP online](https://javguerra.github.io/qlscrview/)
+[Go to the application online](https://javguerra.github.io/qlscrview/)
 
-Note: This app requires JavaScript ES5 to work.
+Note: This application requires JavaScript ES5 to work.
 
 __The APP__
 
