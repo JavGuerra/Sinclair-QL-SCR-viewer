@@ -114,7 +114,7 @@
       ctx.clearRect(0, 0, canvasOriginal.width, canvasOriginal.height);
 
       var archivo = e.target.files[0];
-      if (!archivo) return;
+      if (!archivo) daError('File not found');
       nombreArchivo = archivo.name;
 
       var cambioDeArchivo = nombreArchivo !== nombreAnterior;
@@ -123,19 +123,16 @@
         var reader = new FileReader();
 
         reader.onerror = function(errorEvent) {
-          console.error(`Error reading file: ${errorEvent.target.error}`);
-          return;
+          daError(`Error reading file: ${errorEvent.target.error}`);
         };
 
         reader.onload = function (e) {
           var contenidoArchivo = e.target.result;
           if (contenidoArchivo.byteLength ===  0) {
-            console.log("The file is empty.");
-            return;
+            daError("The file is empty.");
 
           } else if (contenidoArchivo.byteLength > 32768) {
-            console.log("Unsupported file size.");
-            return;
+            daError("Unsupported file size.");
 
           } else {
             buffer = new Uint8Array(contenidoArchivo);
@@ -151,10 +148,20 @@
         parser();
       }
 
-      if (!this.ejecutado) {
-        this.ejecutado = true;
+      if (!manejadorArchivo.ejecutado) {
+        manejadorArchivo.ejecutado = true;
         botonDescargar.disabled = false;
         botonDescargar.setAttribute("aria-disabled", "false");
+      }
+
+      function daError(msg) {
+        console.error(msg);
+        manejadorArchivo.ejecutado = false;
+        ctx.clearRect(0, 0, canvasOriginal.width, canvasOriginal.height);
+        dibujarEnEscala();
+        botonDescargar.disabled = true;
+        botonDescargar.setAttribute("aria-disabled", "true");
+        return;
       }
     
       function chequearBitsCeros() {
