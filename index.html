@@ -11,10 +11,11 @@
     body{ display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0; background-color: #ddd; font-family: Arial, sans-serif; font-size: 12px;}
     h1{ font-weight: bold; margin: 15px 0 5px;}
     #controles{ display: flex; justify-content: center; align-items: center;}
-    #modoSwitch{ background-color: #4CAF50; color: white; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; cursor: pointer; border: none; margin-left: 20px;}
+    #modoSwitch{ background-color: #4CAF50; color: white; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; border: none; margin-left: 20px;}
     #descargar{ margin-left: 7px;}
+    #modoSwitch:disabled{ background-color: #ccc; color: #666; cursor: not-allowed;}
     #descargar:disabled{ cursor: not-allowed;}
-    #descargar:enabled{ cursor: pointer;}
+    #modoSwitch:enabled, #descargar:enabled{ cursor: pointer;}
     #inputArchivo{ margin: 10px 0; cursor: pointer;}
     #canvasImagen, #canvasEscala{ background-color: #ccc;}
   </style>
@@ -25,7 +26,7 @@
 
   <div id="controles">
     <input type="file" id="inputArchivo" />
-    <button id="modoSwitch" role="switch" aria-checked="false" aria-label="Switch mode">MODE&nbsp;4?</button>
+    <button id="modoSwitch" role="switch" aria-disabled="true" aria-checked="false" aria-label="Switch mode">MODE&nbsp;4?</button>
     <button id="descargar" aria-disabled="true">Download&nbsp;PNG</button>
   </div>
 
@@ -51,6 +52,7 @@
       inputArchivo = document.getElementById('inputArchivo');
 
       isSwitchOn = false;
+      botonSwitch.disabled = true;
       botonDescargar.disabled = true;
       inputArchivo.value = '';
       nombreArchivo = '';
@@ -111,10 +113,9 @@
     }
 
     function manejadorArchivo(e) {
-      ctx.clearRect(0, 0, canvasOriginal.width, canvasOriginal.height);
 
       var archivo = e.target.files[0];
-      if (!archivo) daError('File not found');
+      if (!archivo) daError('file not found.');
       nombreArchivo = archivo.name;
 
       var cambioDeArchivo = nombreArchivo !== nombreAnterior;
@@ -129,10 +130,10 @@
         reader.onload = function (e) {
           var contenidoArchivo = e.target.result;
           if (contenidoArchivo.byteLength ===  0) {
-            daError("The file is empty.");
+            daError(`${nombreArchivo} is empty.`);
 
           } else if (contenidoArchivo.byteLength > 32768) {
-            daError("Unsupported file size.");
+            daError(`${nombreArchivo} has an unsupported size.`);
 
           } else {
             buffer = new Uint8Array(contenidoArchivo);
@@ -150,17 +151,25 @@
 
       if (!manejadorArchivo.ejecutado) {
         manejadorArchivo.ejecutado = true;
+        botonSwitch.disabled = false;
         botonDescargar.disabled = false;
+        botonSwitch.setAttribute("aria-disabled", "false");
         botonDescargar.setAttribute("aria-disabled", "false");
       }
 
       function daError(msg) {
-        console.error(msg);
-        manejadorArchivo.ejecutado = false;
         ctx.clearRect(0, 0, canvasOriginal.width, canvasOriginal.height);
-        dibujarEnEscala();
+
+        manejadorArchivo.ejecutado = false;
+
+        botonSwitch.disabled = true;
         botonDescargar.disabled = true;
+        botonSwitch.setAttribute("aria-disabled", "true");
         botonDescargar.setAttribute("aria-disabled", "true");
+
+        var mensaje = 'Error: ' + msg;
+        console.error(mensaje);
+        alert(mensaje);
         return;
       }
     
