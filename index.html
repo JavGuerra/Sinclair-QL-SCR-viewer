@@ -128,13 +128,23 @@
         };
 
         reader.onload = function (e) {
-          buffer = new Uint8Array(e.target.result);
-          nombreAnterior = nombreArchivo;
-          if (isSwitchOn === chequearBitsCeros()) estadoInterruptor();
-          parser();
-          cambioDeArchivo = false;
-        };
+          var contenidoArchivo = e.target.result;
+          if (contenidoArchivo.byteLength ===  0) {
+            console.log("The file is empty.");
+            return;
 
+          } else if (contenidoArchivo.byteLength > 32768) {
+            console.log("Unsupported file size.");
+            return;
+            
+          } else {
+            buffer = new Uint8Array(contenidoArchivo);
+            nombreAnterior = nombreArchivo;
+            if (isSwitchOn === chequearBitsCeros()) estadoInterruptor();
+            parser();
+            cambioDeArchivo = false;
+          }
+        };
         reader.readAsArrayBuffer(archivo);
 
       } else {
@@ -146,64 +156,64 @@
         botonDescargar.disabled = false;
         botonDescargar.setAttribute("aria-disabled", "false");
       }
-    }
     
-    function chequearBitsCeros() {
-      for (let i = 0; i < buffer.length; i += 2) {
-        let byteActual = buffer[i];
-        // Verificar si los bits  2,  4,  6 y  8 son cero
-        if ((byteActual & 0b01010101) !== 0) {
-          return false; // Al menos uno de los bits no es cero
+      function chequearBitsCeros() {
+        for (let i = 0; i < buffer.length; i += 2) {
+          let byteActual = buffer[i];
+          // Verificar si los bits  2,  4,  6 y  8 son cero
+          if ((byteActual & 0b01010101) !== 0) {
+            return false; // Al menos uno de los bits no es cero
+          }
         }
+        return true;
       }
-      return true;
-    }
 
-    function parser() {
-      if (!isSwitchOn) {
-        for (var i = 0; i < 256; i++) {
-          for (var j = 0; j < 256; j += 4) {
+      function parser() {
+        if (!isSwitchOn) { // Mode 8
+          for (var i = 0; i < 256; i++) {
+            for (var j = 0; j < 256; j += 4) {
 
-            var indice = (i * 256 + j) / 2;
-            var byteVerde = buffer[indice];
-            var byteColor = buffer[indice + 1];
+              var indice = (i * 256 + j) / 2;
+              var byteVerde = buffer[indice];
+              var byteColor = buffer[indice + 1];
 
-            for (var k = 0; k < 4; k++) {
+              for (var k = 0; k < 4; k++) {
 
-              var v = ((4 - k) * 2) - 1; // para v: 7, 5, 3, 1
-              var g = (byteVerde >> v) & 0x01 ? 255 : 0;
-              var r = (byteColor >> v) & 0x01 ? 255 : 0;
-              var b = (byteColor >> v - 1) & 0x01 ? 255 : 0;
+                var v = ((4 - k) * 2) - 1; // para v: 7, 5, 3, 1
+                var g = (byteVerde >> v) & 0x01 ? 255 : 0;
+                var r = (byteColor >> v) & 0x01 ? 255 : 0;
+                var b = (byteColor >> v - 1) & 0x01 ? 255 : 0;
 
-              ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
-              ctx.fillRect((j + k) * 4, i * 3, 4, 3);
+                ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+                ctx.fillRect((j + k) * 4, i * 3, 4, 3);
+              }
+            }
+          }
+
+        } else { // Mode 4
+          for (var i = 0; i < 256; i++) {
+            for (var j = 0; j < 512; j += 8) {
+
+              var indice = (i * 256 + (j / 2)) / 2;
+              var byteVerde = buffer[indice];
+              var byteRojo = buffer[indice + 1];
+
+              for (var k = 0; k < 8; k++) {
+
+                var v = 8 - k - 1;
+                var g = (byteVerde >> v) & 0x01 ? 255 : 0;
+                var r = (byteRojo >> v) & 0x01 ? 255 : 0;
+                var b = r & g ? 255 : 0;
+
+                ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+                ctx.fillRect((j + k) * 2, i * 3, 2, 3);
+              }
             }
           }
         }
-        
-      } else {
-        for (var i = 0; i < 256; i++) {
-          for (var j = 0; j < 512; j += 8) {
 
-            var indice = (i * 256 + (j / 2)) / 2;
-            var byteVerde = buffer[indice];
-            var byteRojo = buffer[indice + 1];
-
-            for (var k = 0; k < 8; k++) {
-
-              var v = 8 - k - 1;
-              var g = (byteVerde >> v) & 0x01 ? 255 : 0;
-              var r = (byteRojo >> v) & 0x01 ? 255 : 0;
-              var b = r & g ? 255 : 0;
-
-              ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
-              ctx.fillRect((j + k) * 2, i * 3, 2, 3);
-            }
-          }
-        }
+        dibujarEnEscala();
       }
-
-      dibujarEnEscala();
     }
   </script>
 </body>
