@@ -133,8 +133,8 @@
           if (contenidoArchivo.byteLength ===  0) {
             daError(`${nombreArchivo} is empty.`);
 
-          } else if (contenidoArchivo.byteLength > 32768) {
-            daError(`${nombreArchivo} has an unsupported size.`);
+          // } else if (contenidoArchivo.byteLength > 32768) {
+          //   daError(`${nombreArchivo} has an unsupported size.`);
 
           } else {
             buffer = new Uint8Array(contenidoArchivo);
@@ -152,7 +152,7 @@
 
       if (!manejadorArchivo.ejecutado) {
         manejadorArchivo.ejecutado = true;
-        
+
         botonSwitch.disabled = false;
         botonDescargar.disabled = false;
         botonSwitch.setAttribute("aria-disabled", "false");
