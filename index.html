@@ -47,6 +47,7 @@
       ctx = canvasOriginal.getContext('2d');
       ctxEscala = canvasEscala.getContext('2d');
 
+      ctx.font = '24px Arial';
       botonSwitch = document.getElementById('modoSwitch');
       botonDescargar = document.getElementById('descargar');
       inputArchivo = document.getElementById('inputArchivo');
@@ -151,6 +152,7 @@
 
       if (!manejadorArchivo.ejecutado) {
         manejadorArchivo.ejecutado = true;
+        
         botonSwitch.disabled = false;
         botonDescargar.disabled = false;
         botonSwitch.setAttribute("aria-disabled", "false");
@@ -158,9 +160,6 @@
       }
 
       function daError(msg) {
-        ctx.clearRect(0, 0, canvasOriginal.width, canvasOriginal.height);
-        dibujarEnEscala();
-
         manejadorArchivo.ejecutado = false;
 
         botonSwitch.disabled = true;
@@ -170,7 +169,11 @@
 
         var mensaje = 'Error: ' + msg;
         console.error(mensaje);
-        alert(mensaje);
+        ctx.clearRect(0, 0, canvasOriginal.width, canvasOriginal.height);
+        ctx.fillStyle = 'red';
+        ctx.fillText(mensaje, 30, 40);
+        dibujarEnEscala();
+
         return;
       }
     
