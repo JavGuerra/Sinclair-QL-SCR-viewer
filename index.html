@@ -66,6 +66,8 @@
       window.addEventListener('resize', calcularTamañoCanvas);
       event = new Event('change');
 
+      ctx.fillStyle = 'black';
+      ctx.fillText("Select a file.", 30, 40);
       calcularTamañoCanvas();
     });
 
