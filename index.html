@@ -8,16 +8,16 @@
   <meta name="description" content="This application loads and displays classic Sinclair QL computer screens." />
   <meta name="author" content="Javier Guerra" />
   <style>
-    body{ display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0; background-color: #ddd; font-family: Arial, sans-serif; font-size: 12px;}
+    body{ display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0; background-color: gainsboro; color: dimgray; font-family: Arial, sans-serif; font-size: 12px;}
     h1{ font-weight: bold; margin: 15px 0 5px;}
     #controles{ display: flex; justify-content: center; align-items: center;}
-    #modoSwitch{ background-color: #4CAF50; color: white; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; border: none; margin-left: 20px;}
+    #modoSwitch{ background-color: mediumseagreen; color: white; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; border: none; margin-left: 20px;}
     #descargar{ margin-left: 7px;}
-    #modoSwitch:disabled{ background-color: #ccc; color: #666; cursor: not-allowed;}
+    #modoSwitch:disabled{ background-color: silver; color: dimgray; cursor: not-allowed;}
     #descargar:disabled{ cursor: not-allowed;}
     #modoSwitch:enabled, #descargar:enabled{ cursor: pointer;}
     #inputArchivo{ margin: 10px 0; cursor: pointer;}
-    #canvasImagen, #canvasEscala{ background-color: #ccc;}
+    #canvasEscala{ background-color: gainsboro;}
   </style>
 </head>
 
@@ -66,8 +66,7 @@
       window.addEventListener('resize', calcularTamañoCanvas);
       event = new Event('change');
 
-      ctx.fillStyle = 'black';
-      ctx.fillText("Select a file.", 30, 40);
+      ponerMensaje('Select a file', 'black');
       calcularTamañoCanvas();
     });
 
@@ -106,19 +105,17 @@
       ctxEscala.drawImage(canvasOriginal, 0, 0, canvasOriginal.width, canvasOriginal.height, xVisible, yVisible, anchoVisible, altoVisible);
     }
 
-    function descargarComoPNG() {
-      var link = document.createElement('a');
-      var nombre = nombreArchivo || 'scr';
-      var sufijo = isSwitchOn ? '_QL4.png' : '_QL8.png';
-      link.download = nombre + sufijo;
-      link.href = canvasOriginal.toDataURL('image/png');
-      link.click();
+    function ponerMensaje(texto, color) {
+      ctx.fillStyle = 'Silver';
+      ctx.fillRect(0,  0, canvasOriginal.width, canvasOriginal.height);
+      ctx.fillStyle = color;
+      ctx.fillText(texto, 30, 40);
     }
 
     function manejadorArchivo(e) {
 
       var archivo = e.target.files[0];
-      if (!archivo) daError('file not found.');
+      if (!archivo) darError('file not found');
       nombreArchivo = archivo.name;
 
       var cambioDeArchivo = nombreArchivo !== nombreAnterior;
@@ -127,17 +124,17 @@
         var reader = new FileReader();
 
         reader.onerror = function(errorEvent) {
-          daError(`Error reading file: ${errorEvent.target.error}`);
+          darError(`problem reading "${errorEvent.target.error}"`);
         };
 
         reader.onload = function (e) {
           var contenidoArchivo = e.target.result;
           if (contenidoArchivo.byteLength ===  0) {
-            daError(`${nombreArchivo} is empty.`);
+            darError(`"${nombreArchivo}" is empty`);
 
           // Desactivado intencionalmente para poder cargar imágenes ROM y otros
           // } else if (contenidoArchivo.byteLength > 32768) {
-          //   daError(`${nombreArchivo} has an unsupported size.`);
+          //   darError(`"${nombreArchivo}" has an unsupported size`);
 
           } else {
             buffer = new Uint8Array(contenidoArchivo);
@@ -162,7 +159,7 @@
         botonDescargar.setAttribute("aria-disabled", "false");
       }
 
-      function daError(msg) {
+      function darError(msg) {
         manejadorArchivo.ejecutado = false;
 
         botonSwitch.disabled = true;
@@ -172,9 +169,7 @@
 
         var mensaje = 'Error: ' + msg;
         console.error(mensaje);
-        ctx.clearRect(0, 0, canvasOriginal.width, canvasOriginal.height);
-        ctx.fillStyle = 'red';
-        ctx.fillText(mensaje, 30, 40);
+        ponerMensaje(mensaje, 'crimson');
         dibujarEnEscala();
 
         return;
@@ -237,6 +232,15 @@
 
         dibujarEnEscala();
       }
+    }
+
+    function descargarComoPNG() {
+      var link = document.createElement('a');
+      var nombre = nombreArchivo || 'scr';
+      var sufijo = isSwitchOn ? '_QL4.png' : '_QL8.png';
+      link.download = nombre + sufijo;
+      link.href = canvasOriginal.toDataURL('image/png');
+      link.click();
     }
   </script>
 </body>
