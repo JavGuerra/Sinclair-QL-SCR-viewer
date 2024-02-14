@@ -17,29 +17,38 @@
     #descargar:disabled{ cursor: not-allowed;}
     #modoSwitch:enabled, #descargar:enabled{ cursor: pointer;}
     #inputArchivo{ margin: 10px 0; cursor: pointer;}
+    #canvasImagen{ display:none;}
     #canvasEscala{ background-color: gainsboro;}
   </style>
 </head>
 
 <body>
-  <h1>Sinclair QL SCR viewer</h1>
+  <header>
+    <h1>Sinclair QL SCR viewer</h1>
+  </header>
 
-  <div id="controles">
-    <input type="file" id="inputArchivo" />
-    <button id="modoSwitch" role="switch" aria-disabled="true" aria-checked="false" aria-label="Switch mode">MODE&nbsp;4?</button>
-    <button id="descargar" aria-disabled="true">Download&nbsp;PNG</button>
-  </div>
+  <main>
+    <div id="controles">
+      <input type="file" id="inputArchivo" />
+      <button id="modoSwitch" role="switch" aria-label="Switch mode"
+        aria-disabled="true" aria-checked="false">MODE&nbsp;4?</button>
+      <button id="descargar" aria-disabled="true">Download&nbsp;PNG</button>
+    </div>
 
-  <div role="region" aria-label="Image Display Area">
-    <canvas id="canvasImagen" width="1024" height="768" style="display:none;"></canvas>
-    <canvas id="canvasEscala" class="canvas-escala"></canvas>
-  </div>
+    <div role="region" aria-label="Image Display Area">
+      <canvas id="canvasImagen" width="1024" height="768"></canvas>
+      <canvas id="canvasEscala" class="canvas-escala"></canvas>
+    </div>
+  </main>
 
-  <p><small>v1.0 · 2024 Javier Guerra · <a href="https://github.com/JavGuerra/qlscrview">The code</a></small></p>
+  <footer>
+    <p><small>v1.0 · 2024 Javier Guerra ·
+    <a href="https://github.com/JavGuerra/qlscrview">The code</a></small></p>
+  </footer>
 
   <script>
     var canvasOriginal, canvasEscala, ctx, ctxEscala, botonSwitch, isSwitchOn,
-      botonDescargar, inputArchivo, nombreArchivo, nombreAnterior, buffer, event;
+     botonDescargar, inputArchivo, nombreArchivo, nombreAnterior, buffer, event;
 
     window.addEventListener('load', function () {
       canvasOriginal = document.getElementById('canvasImagen');
@@ -47,7 +56,6 @@
       ctx = canvasOriginal.getContext('2d');
       ctxEscala = canvasEscala.getContext('2d');
 
-      ctx.font = '24px Arial';
       botonSwitch = document.getElementById('modoSwitch');
       botonDescargar = document.getElementById('descargar');
       inputArchivo = document.getElementById('inputArchivo');
@@ -59,6 +67,7 @@
       nombreArchivo = '';
       nombreAnterior = null;
       buffer = null;
+      ctx.font = '24px Arial';
 
       botonSwitch.addEventListener('click', estadoInterruptor);
       botonDescargar.addEventListener('click', descargarComoPNG);
@@ -102,7 +111,8 @@
       // Limpiar el segundo canvas
       ctxEscala.clearRect(0, 0, canvasEscala.width, canvasEscala.height);
       // Dibujar sólo la parte visible del primer canvas en el segundo
-      ctxEscala.drawImage(canvasOriginal, 0, 0, canvasOriginal.width, canvasOriginal.height, xVisible, yVisible, anchoVisible, altoVisible);
+      ctxEscala.drawImage(canvasOriginal, 0, 0, canvasOriginal.width,
+        canvasOriginal.height, xVisible, yVisible, anchoVisible, altoVisible);
     }
 
     function ponerMensaje(texto, color) {
@@ -132,7 +142,7 @@
           if (contenidoArchivo.byteLength ===  0) {
             darError(`"${nombreArchivo}" is empty`);
 
-          // Desactivado intencionalmente para poder cargar imágenes ROM y otros
+          // Desactivado para poder cargar imágenes ROM y otros
           // } else if (contenidoArchivo.byteLength > 32768) {
           //   darError(`"${nombreArchivo}" has an unsupported size`);
 
