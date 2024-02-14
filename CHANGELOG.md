@@ -5,6 +5,7 @@ __v1.0 - 2024-02-10__
 - Se evitó leer el archivo cada vez que se cambia de modo.
 - Se añadió control de errores al cargar el archivo.
 - Cambiada la numeración de versiones.
+- Optimización de código.
 
 __v0.9 - 2024-02-08__ 
 - Detección automática del modo de visualización al cargar la imagen.
