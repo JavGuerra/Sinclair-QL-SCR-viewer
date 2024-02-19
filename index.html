@@ -14,8 +14,8 @@
     #modoSwitch{ background-color: mediumseagreen; color: white; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; border: none; margin-left: 20px;}
     #descargar{ margin-left: 7px;}
     #modoSwitch:disabled{ background-color: silver; color: dimgray; cursor: not-allowed;}
-    #descargar:disabled{ cursor: not-allowed;}
     #modoSwitch:enabled, #descargar:enabled{ cursor: pointer;}
+    #descargar:disabled{ cursor: not-allowed;}
     #inputArchivo{ margin: 10px 0; cursor: pointer;}
     #canvasImagen{ display:none;}
     #canvasEscala{ background-color: gainsboro;}
@@ -30,7 +30,7 @@
   <main>
     <div id="controles">
       <input type="file" id="inputArchivo" aria-label="Load" />
-      <button id="modoSwitch" role="switch" aria-label="Switch mode"
+      <button id="modoSwitch" type="button" role="switch" aria-label="Switch mode"
         aria-disabled="true" aria-checked="false">MODE&nbsp;4?</button>
       <button id="descargar" aria-disabled="true">Download&nbsp;PNG</button>
     </div>
