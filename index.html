@@ -8,7 +8,7 @@
   <meta name="description" content="This application loads and displays classic Sinclair QL computer screens." />
   <meta name="author" content="Javier Guerra" />
   <style>
-    body{ display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0; background-color: gainsboro; color: dimgray; font-family: Arial, sans-serif; font-size: 12px;}
+    body{ display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0; background-color: gainsboro; color: black; font-family: Arial, sans-serif; font-size: 12px;}
     h1{ font-weight: bold; margin: 15px 0 5px;}
     #controles{ display: flex; justify-content: center; align-items: center;}
     #modoSwitch{ background-color: mediumseagreen; color: white; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; border: none; margin-left: 20px;}
@@ -122,9 +122,9 @@
       ctx.fillText(texto, 30, 40);
     }
 
-    function manejadorArchivo(e) {
+    function manejadorArchivo(event) {
 
-      var archivo = e.target.files[0];
+      var archivo = event.target.files[0];
       if (!archivo) darError('file not found');
       nombreArchivo = archivo.name;
 
@@ -134,11 +134,11 @@
         var reader = new FileReader();
 
         reader.onerror = function(errorEvent) {
-          darError(`problem reading "${errorEvent.target.error}"`);
+          darError(errorEvent.target.error.message);
         };
 
-        reader.onload = function (e) {
-          var contenidoArchivo = e.target.result;
+        reader.onload = function(loadEvent) {
+          var contenidoArchivo = loadEvent.target.result;
           if (contenidoArchivo.byteLength ===  0) {
             darError(`"${nombreArchivo}" is empty`);
 
