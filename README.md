@@ -7,7 +7,7 @@ This application loads and displays classic Sinclair QL computer screens.
 
 ![snapshot](qlscrview.png)
 
-[Go to the application online](https://javguerra.github.io/qlscrview/)
+[Go to the application online](https://javguerra.github.io/Sinclair-QL-SCR-viewer)
 
 Note: Requires JavaScript ES5 or higher to work.
 
