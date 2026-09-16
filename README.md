@@ -1,5 +1,5 @@
 # Sinclair QL SCR viewer
-v1.0
+v1.1
 
 By: Javier Guerra
 
@@ -7,13 +7,15 @@ This application loads and displays classic Sinclair QL computer screens.
 
 ![snapshot](qlscrview.png)
 
-[Go to the application online](https://javguerra.github.io/qlscrview/)
+[Go to the application online](https://javguerra.github.io/Sinclair-QL-SCR-viewer/)
 
 Note: Requires JavaScript ES5 or higher to work.
 
 ## Info
 
 This application is an HTML file that allows an image file in QL format located locally or remotely to be loaded into the browser, using an input button, and displays its content without CORS errors occurring, and without using a server.
+
+**The 'index.html' file is self-contained, and can be downloaded and used on an offline computer.**
 
 The resulting image can be downloaded in PNG format with a size of 1024x768 pixels.
 
@@ -29,13 +31,13 @@ The application automatically detects the image mode knowing that, if the entire
 
 Once the image is loaded in the application, it is possible to change the display mode via the mode button.
 
-The 'index.html' file is self-contained, and can be downloaded and used on an offline computer.
-
 To test it, you can use the file 'qlcolors_scr' which is a screen image in mode 8.
 
 __In Spanish__
 
 Esta aplicación es un archivo HTML que permite cargar en el navegador un archivo de imagen en formato QL ubicado en local o en remoto, mediante un botón input, y mostrar su contenido sin que ocurran errores de CORS, y sin usar un servidor.
+
+**El archivo 'index.html' es autocontenido, y se puede descargar y utilizar en una computadora fuera de línea.**
 
 La imagen resultante puede descargarse en formato PNG con un tamaño de 1024x768 pixels.
 
@@ -51,8 +53,6 @@ La aplicación detecta automáticamente el modo de imagen sabiendo que, si toda 
 
 Una vez cargada la imagen en la aplicación, es posible cambiar el modo de visualización a través del botón de modo.
 
-El archivo 'index.html' es autocontenido, y se puede descargar y utilizar en una computadora fuera de línea.
-
 Para probarlo, puedes usar el archivo 'qlcolors_scr' que es una imagen de pantalla en modo 8.
 
 ## Acknowledgments
@@ -60,4 +60,4 @@ Para probarlo, puedes usar el archivo 'qlcolors_scr' que es una imagen de pantal
 My thanks to Dilwyn Jones for providing ideas and suggestions for automatic mode detection and other screen formats.
 
 ---
-2024 · GPL v3 license
+2024-2026 · GPL v3 license

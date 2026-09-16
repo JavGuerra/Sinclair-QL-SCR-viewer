@@ -10,15 +10,18 @@
   <style>
     body{ display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0; background-color: gainsboro; color: black; font-family: Arial, sans-serif; font-size: 12px;}
     h1{ font-weight: bold; margin: 15px 0 5px;}
-    #controles{ display: flex; justify-content: center; align-items: center;}
-    #modoSwitch{ background-color: mediumseagreen; color: white; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; border: none; margin-left: 20px;}
-    #descargar{ margin-left: 7px;}
-    #modoSwitch:disabled{ background-color: silver; color: dimgray; cursor: not-allowed;}
-    #modoSwitch:enabled, #descargar:enabled{ cursor: pointer;}
-    #descargar:disabled{ cursor: not-allowed;}
-    #inputArchivo{ margin: 10px 0; cursor: pointer;}
+    #controles{ display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 7px; margin-bottom: 10px;}
+    #botonModo{ background-color: mediumseagreen; color: white; padding: 5px 10px; text-align: center; text-decoration: none; display: inline-block; font-size: 12px; border: none;}
+    #descargar, #copiarPortapapeles{ padding: 5px 10px; font-size: 12px; border: 1px solid #ccc; background-color: #f8f8f8;}
+    #botonModo:disabled{ background-color: silver; color: dimgray; cursor: not-allowed;}
+    #botonModo:enabled, #descargar:enabled, #copiarPortapapeles:enabled{ cursor: pointer;}
+    #descargar:disabled, #copiarPortapapeles:disabled{ cursor: not-allowed; color: dimgray;}
+    #inputArchivo{ cursor: pointer;}
     #canvasImagen{ display:none;}
-    #canvasEscala{ background-color: gainsboro;}
+    #zonaVisualizacion{ position: relative; border: 2px dashed transparent; transition: border-color 0.2s; padding: 2px; margin-bottom: 5px;}
+    #zonaVisualizacion.dragover{ border-color: mediumseagreen; background-color: rgba(46, 139, 87, 0.1);}
+    #canvasEscala{ background-color: gainsboro; display: block;}
+    #iconoDrop{ position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; opacity: 0.4; color: dimgray;}
   </style>
 </head>
 
@@ -30,25 +33,33 @@
   <main>
     <div id="controles">
       <input id="inputArchivo" type="file" aria-label="Load" />
-      <button id="modoSwitch" type="button" role="switch" aria-label="Switch mode"
-        aria-checked="false" aria-disabled="true">MODE&nbsp;4?</button>
-      <button id="descargar" type="button" aria-disabled="true">Download&nbsp;PNG</button>
+      <button id="botonModo" type="button" role="switch" aria-label="Switch mode"
+        aria-checked="false" aria-disabled="true"><u>M</u>ODE&nbsp;4?</button>
+      <button id="descargar" type="button" aria-disabled="true"><u>D</u>ownload&nbsp;PNG</button>
+      <button id="copiarPortapapeles" type="button" aria-disabled="true"><u>C</u>opy&nbsp;Image</button>
     </div>
 
-    <div role="region" aria-label="Image Display Area">
+    <div id="zonaVisualizacion" role="region" aria-label="Image Display Area">
+      <!-- Icono SVG indicador de arrastrar y soltar (se oculta al cargar imagen) -->
+      <svg id="iconoDrop" xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="17 8 12 3 7 8"></polyline>
+        <line x1="12" y1="3" x2="12" y2="15"></line>
+      </svg>
       <canvas id="canvasImagen" width="1024" height="768"></canvas>
       <canvas id="canvasEscala" class="canvas-escala"></canvas>
     </div>
   </main>
 
   <footer>
-    <p><small>v1.0 · 2024 Javier Guerra ·
-    <a href="https://github.com/JavGuerra/qlscrview">The code</a></small></p>
+    <p><small>v1.1 · 2024-2026 Javier Guerra ·
+    <a href="https://github.com/JavGuerra/qlscrview">Download this simple page aplication (index.html)</a></small></p>
   </footer>
 
   <script>
-    var canvasOriginal, canvasEscala, ctx, ctxEscala, botonSwitch, isSwitchOn,
-     botonDescargar, inputArchivo, nombreArchivo, nombreAnterior, buffer, event;
+    let canvasOriginal, canvasEscala, ctx, ctxEscala, botonModo, esModoOcho,
+        botonDescargar, botonCopiar, inputArchivo, zonaVisualizacion, iconoDrop,
+        nombreArchivo, nombreAnterior, buffer;
 
     window.addEventListener('load', function () {
       canvasOriginal = document.getElementById('canvasImagen');
@@ -56,199 +67,270 @@
       ctx = canvasOriginal.getContext('2d');
       ctxEscala = canvasEscala.getContext('2d');
 
-      botonSwitch = document.getElementById('modoSwitch');
+      botonModo = document.getElementById('botonModo');
       botonDescargar = document.getElementById('descargar');
+      botonCopiar = document.getElementById('copiarPortapapeles');
       inputArchivo = document.getElementById('inputArchivo');
+      zonaVisualizacion = document.getElementById('zonaVisualizacion');
+      iconoDrop = document.getElementById('iconoDrop');
 
-      isSwitchOn = false;
-      botonSwitch.disabled = true;
-      botonDescargar.disabled = true;
+      esModoOcho = false;
+      habilitarControles(false);
       inputArchivo.value = '';
       nombreArchivo = '';
       nombreAnterior = null;
       buffer = null;
       ctx.font = '24px Arial';
 
-      botonSwitch.addEventListener('click', estadoInterruptor);
+      // Eventos de interfaz
+      botonModo.addEventListener('click', cambiarModo);
       botonDescargar.addEventListener('click', descargarComoPNG);
-      inputArchivo.addEventListener('change', manejadorArchivo);
+      botonCopiar.addEventListener('click', copiarAlPortapapeles);
+      inputArchivo.addEventListener('change', (e) => procesarArchivo(e.target.files[0]));
       window.addEventListener('resize', calcularTamañoCanvas);
-      event = new Event('change');
 
-      ponerMensaje('Select a file', 'black');
+      // Eventos de Drag & Drop para soltar ficheros en la zona visual
+      zonaVisualizacion.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        zonaVisualizacion.classList.add('dragover');
+      });
+      zonaVisualizacion.addEventListener('dragleave', () => {
+        zonaVisualizacion.classList.remove('dragover');
+      });
+      zonaVisualizacion.addEventListener('drop', (e) => {
+        e.preventDefault();
+        zonaVisualizacion.classList.remove('dragover');
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+          // Asignar los archivos al input para que el navegador refleje el nombre seleccionado
+          inputArchivo.files = e.dataTransfer.files;
+          procesarArchivo(e.dataTransfer.files[0]);
+        }
+      });
+
+      // Atajos de teclado (M para modo, D para descargar, C para copiar)
+      window.addEventListener('keydown', (e) => {
+        const tecla = e.key.toLowerCase();
+        if (tecla === 'm' && !botonModo.disabled) {
+          cambiarModo();
+        } else if (tecla === 'd' && !botonDescargar.disabled) {
+          descargarComoPNG();
+        } else if (tecla === 'c' && !botonCopiar.disabled) {
+          copiarAlPortapapeles();
+        }
+      });
+
+      ponerMensaje('Select or drop a file', 'black');
       calcularTamañoCanvas();
     });
 
-    function estadoInterruptor() {
-      isSwitchOn = !isSwitchOn;
-      var nuevoModo = String(isSwitchOn);
-      botonSwitch.setAttribute('aria-checked', nuevoModo);
-      botonSwitch.innerText = `MODE\u00A0${nuevoModo === 'true' ? 8 : 4}?`;
-      // Lanza el cambio de modo
-      inputArchivo.dispatchEvent(event);
+    function cambiarModo() {
+      esModoOcho = !esModoOcho;
+      actualizarTextosInterfaz();
+      
+      // Si ya hay un buffer cargado, interpretamos directamente con el nuevo modo
+      if (buffer) {
+        interpretarBuffer();
+      }
     }
 
-    // Calcular el tamaño del segundo canvas basado en el tamaño del dispositivo
+    function actualizarTextosInterfaz() {
+      // El botón sugiere cambiar al modo contrario
+      const modoSugerido = esModoOcho ? 4 : 8;
+      botonModo.setAttribute('aria-checked', String(esModoOcho));
+      botonModo.innerHTML = `<u>M</u>ODE&nbsp;${modoSugerido}?`;
+
+      // Actualizamos el título de la página y el tooltip con los detalles del fichero y modo actual
+      if (buffer) {
+        const modoActualStr = esModoOcho ? 'Mode 8' : 'Mode 4';
+        const infoDetallada = `${nombreArchivo} (${buffer.length} bytes) — ${modoActualStr}`;
+        document.title = `Sinclair QL SCR viewer - ${infoDetallada}`;
+        zonaVisualizacion.title = infoDetallada;
+      }
+    }
+
+    // Calcular el tamaño del segundo canvas adaptado a la ventana
     function calcularTamañoCanvas() {
       canvasEscala.width = Math.min(1024, window.innerWidth);
-      var alturaMaxima = Math.min(768, Math.round(window.innerWidth * 3 / 4));
+      const alturaMaxima = Math.min(768, Math.round(window.innerWidth * 3 / 4));
       canvasEscala.height = Math.min(alturaMaxima, window.innerHeight);
       dibujarEnEscala();
     }
 
     function dibujarEnEscala() {
-      // Calcular el factor de escala basado en el tamaño del segundo canvas
-      var factorEscalaX = canvasEscala.width / canvasOriginal.width;
-      var factorEscalaY = canvasEscala.height / canvasOriginal.height;
-      // Mantén la proporción de aspecto de 4:3
-      var factorEscala = Math.min(factorEscalaX, factorEscalaY);
-      // Ajusta el ancho y el alto para mantener la proporción
-      var anchoVisible = canvasOriginal.width * factorEscala;
-      var altoVisible = canvasOriginal.height * factorEscala;
-      // Centra el primer canvas dentro del segundo
-      var xVisible = (canvasEscala.width - anchoVisible) / 2;
-      var yVisible = (canvasEscala.height - altoVisible) / 2;
-      // Limpiar el segundo canvas
+      // Calcular el factor de escala manteniendo la proporción clásica de 4:3
+      const factorEscalaX = canvasEscala.width / canvasOriginal.width;
+      const factorEscalaY = canvasEscala.height / canvasOriginal.height;
+      const factorEscala = Math.min(factorEscalaX, factorEscalaY);
+      
+      const anchoVisible = canvasOriginal.width * factorEscala;
+      const altoVisible = canvasOriginal.height * factorEscala;
+      
+      // Centrar el canvas original dentro del canvas de visualización escalado
+      const xVisible = (canvasEscala.width - anchoVisible) / 2;
+      const yVisible = (canvasEscala.height - altoVisible) / 2;
+      
       ctxEscala.clearRect(0, 0, canvasEscala.width, canvasEscala.height);
-      // Dibujar sólo la parte visible del primer canvas en el segundo
       ctxEscala.drawImage(canvasOriginal, 0, 0, canvasOriginal.width,
         canvasOriginal.height, xVisible, yVisible, anchoVisible, altoVisible);
     }
 
     function ponerMensaje(texto, color) {
       ctx.fillStyle = 'Silver';
-      ctx.fillRect(0,  0, canvasOriginal.width, canvasOriginal.height);
+      ctx.fillRect(0, 0, canvasOriginal.width, canvasOriginal.height);
       ctx.fillStyle = color;
       ctx.fillText(texto, 30, 40);
     }
 
-    function manejadorArchivo(event) {
-
-      var archivo = event.target.files[0];
-      if (!archivo) darError('file not found');
+    function procesarArchivo(archivo) {
+      if (!archivo) {
+        darError('file not found');
+        return;
+      }
       nombreArchivo = archivo.name;
 
-      var cambioDeArchivo = nombreArchivo !== nombreAnterior;
+      const cambioDeArchivo = nombreArchivo !== nombreAnterior;
 
       if (cambioDeArchivo || buffer === null) {
-        var reader = new FileReader();
+        const lector = new FileReader();
 
-        reader.onerror = function(errorEvent) {
-          darError(errorEvent.target.error.message);
+        lector.onerror = function(errorEvento) {
+          darError(errorEvento.target.error.message);
         };
 
-        reader.onload = function(loadEvent) {
-          var contenidoArchivo = loadEvent.target.result;
-          if (contenidoArchivo.byteLength ===  0) {
+        lector.onload = function(cargaEvento) {
+          const contenidoArchivo = cargaEvento.target.result;
+          if (contenidoArchivo.byteLength === 0) {
             darError(`"${nombreArchivo}" is empty`);
 
-          // Desactivado para poder cargar imágenes ROM y otros
-          // } else if (contenidoArchivo.byteLength > 32768) {
-          //   darError(`"${nombreArchivo}" has an unsupported size`);
+          // Limitación a 32768 bytes para imágenes estándar.
+          // Comenta las siguientes dos líneas si quieres cargar archivos ROM u otros de mayor tamaño.
+          } else if (contenidoArchivo.byteLength > 32768) {
+            darError(`"${nombreArchivo}" has an unsupported size`);
 
           } else {
             buffer = new Uint8Array(contenidoArchivo);
             nombreAnterior = nombreArchivo;
-            if (isSwitchOn === chequearBitsCeros()) estadoInterruptor();
-            parser();
-            cambioDeArchivo = false;
+            
+            // Autodetección del modo analizando los bits en cero
+            const esModoOchoDetectado = chequearBitsCeros();
+            if (esModoOcho !== esModoOchoDetectado) {
+              esModoOcho = esModoOchoDetectado;
+            }
+
+            iconoDrop.style.display = 'none'; // Ocultar el icono de arrastre al cargar con éxito
+            interpretarBuffer();
+            habilitarControles(true);
+            actualizarTextosInterfaz();
           }
         };
-        reader.readAsArrayBuffer(archivo);
+        lector.readAsArrayBuffer(archivo);
 
       } else {
-        parser();
-      }
-
-      if (!manejadorArchivo.ejecutado) {
-        manejadorArchivo.ejecutado = true;
-
-        botonSwitch.disabled = false;
-        botonDescargar.disabled = false;
-        botonSwitch.setAttribute("aria-disabled", "false");
-        botonDescargar.setAttribute("aria-disabled", "false");
-      }
-
-      function darError(msg) {
-        manejadorArchivo.ejecutado = false;
-
-        botonSwitch.disabled = true;
-        botonDescargar.disabled = true;
-        botonSwitch.setAttribute("aria-disabled", "true");
-        botonDescargar.setAttribute("aria-disabled", "true");
-
-        var mensaje = 'Error: ' + msg;
-        console.error(mensaje);
-        ponerMensaje(mensaje, 'crimson');
-        dibujarEnEscala();
-
-        return;
-      }
-    
-      function chequearBitsCeros() {
-        for (let i = 0; i < buffer.length; i += 2) {
-          let byteActual = buffer[i];
-          // Verificar si los bits  2,  4,  6 y  8 son cero
-          if ((byteActual & 0b01010101) !== 0) {
-            return false; // Al menos uno de los bits no es cero
-          }
-        }
-        return true;
-      }
-
-      function parser() {
-        if (!isSwitchOn) { // Mode 8
-          for (var i = 0; i < 256; i++) {
-            for (var j = 0; j < 256; j += 4) {
-
-              var indice = (i * 256 + j) / 2;
-              var byteVerde = buffer[indice];
-              var byteColor = buffer[indice + 1];
-
-              for (var k = 0; k < 4; k++) {
-
-                var v = ((4 - k) * 2) - 1; // para v: 7, 5, 3, 1
-                var g = (byteVerde >> v) & 0x01 ? 255 : 0;
-                var r = (byteColor >> v) & 0x01 ? 255 : 0;
-                var b = (byteColor >> v - 1) & 0x01 ? 255 : 0;
-
-                ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
-                ctx.fillRect((j + k) * 4, i * 3, 4, 3);
-              }
-            }
-          }
-        } else { // Mode 4
-          for (var i = 0; i < 256; i++) {
-            for (var j = 0; j < 512; j += 8) {
-
-              var indice = (i * 256 + (j / 2)) / 2;
-              var byteVerde = buffer[indice];
-              var byteRojo = buffer[indice + 1];
-
-              for (var k = 0; k < 8; k++) {
-
-                var v = 8 - k - 1;
-                var g = (byteVerde >> v) & 0x01 ? 255 : 0;
-                var r = (byteRojo >> v) & 0x01 ? 255 : 0;
-                var b = r & g ? 255 : 0;
-
-                ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
-                ctx.fillRect((j + k) * 2, i * 3, 2, 3);
-              }
-            }
-          }
-        }
-        dibujarEnEscala();
+        iconoDrop.style.display = 'none';
+        interpretarBuffer();
+        actualizarTextosInterfaz();
       }
     }
 
+    function darError(msg) {
+      habilitarControles(false);
+      document.title = 'Sinclair QL SCR viewer - Error loading file';
+      zonaVisualizacion.removeAttribute('title');
+      iconoDrop.style.display = 'block'; // Mostrar de nuevo el icono si ocurre un error
+      const mensaje = 'Error: ' + msg;
+      console.error(mensaje);
+      ponerMensaje(mensaje, 'crimson');
+      dibujarEnEscala();
+    }
+
+    function habilitarControles(habilitar) {
+      botonModo.disabled = !habilitar;
+      botonDescargar.disabled = !habilitar;
+      botonCopiar.disabled = !habilitar;
+      botonModo.setAttribute("aria-disabled", String(!habilitar));
+      botonDescargar.setAttribute("aria-disabled", String(!habilitar));
+      botonCopiar.setAttribute("aria-disabled", String(!habilitar));
+    }
+  
+    function chequearBitsCeros() {
+      for (let i = 0; i < buffer.length; i += 2) {
+        const byteActual = buffer[i];
+        // Verificar si los bits 2, 4, 6 y 8 son cero
+        if ((byteActual & 0b01010101) !== 0) {
+          return false; // Al menos uno de los bits no es cero (Modo 4)
+        }
+      }
+      return true; // (Modo 8)
+    }
+
+    function interpretarBuffer() {
+      if (esModoOcho) { // Mode 8 (256x256, 4 colores)
+        for (let i = 0; i < 256; i++) {
+          for (let j = 0; j < 256; j += 4) {
+
+            const indice = (i * 256 + j) / 2;
+            const byteVerde = buffer[indice];
+            const byteColor = buffer[indice + 1];
+
+            for (let k = 0; k < 4; k++) {
+
+              const v = ((4 - k) * 2) - 1; // para v: 7, 5, 3, 1
+              const g = (byteVerde >> v) & 0x01 ? 255 : 0;
+              const r = (byteColor >> v) & 0x01 ? 255 : 0;
+              const b = (byteColor >> v - 1) & 0x01 ? 255 : 0;
+
+              ctx.fillStyle = `rgb(${r},${g},${b})`;
+              ctx.fillRect((j + k) * 4, i * 3, 4, 3);
+            }
+          }
+        }
+      } else { // Mode 4 (512x256, 4 colores por línea)
+        for (let i = 0; i < 256; i++) {
+          for (let j = 0; j < 512; j += 8) {
+
+            const indice = (i * 256 + (j / 2)) / 2;
+            const byteVerde = buffer[indice];
+            const byteRojo = buffer[indice + 1];
+
+            for (let k = 0; k < 8; k++) {
+
+              const v = 8 - k - 1;
+              const g = (byteVerde >> v) & 0x01 ? 255 : 0;
+              const r = (byteRojo >> v) & 0x01 ? 255 : 0;
+              const b = r & g ? 255 : 0;
+
+              ctx.fillStyle = `rgb(${r},${g},${b})`;
+              ctx.fillRect((j + k) * 2, i * 3, 2, 3);
+            }
+          }
+        }
+      }
+      dibujarEnEscala();
+    }
+
     function descargarComoPNG() {
-      var link = document.createElement('a');
-      var nombre = nombreArchivo || 'scr';
-      var sufijo = isSwitchOn ? '_QL4.png' : '_QL8.png';
-      link.download = nombre + sufijo;
-      link.href = canvasOriginal.toDataURL('image/png');
-      link.click();
+      const enlace = document.createElement('a');
+      const nombre = nombreArchivo || 'scr';
+      const sufijo = esModoOcho ? '_QL8.png' : '_QL4.png';
+      enlace.download = nombre + sufijo;
+      enlace.href = canvasOriginal.toDataURL('image/png');
+      enlace.click();
+    }
+
+    async function copiarAlPortapapeles() {
+      try {
+        canvasOriginal.toBlob(async (blob) => {
+          await navigator.clipboard.write([
+            new ClipboardItem({ 'image/png': blob })
+          ]);
+          const textoOriginal = botonCopiar.innerHTML;
+          botonCopiar.innerHTML = 'Copied!';
+          setTimeout(() => { botonCopiar.innerHTML = textoOriginal; }, 2000);
+        });
+      } catch (err) {
+        console.error('Error copying image to clipboard: ', err);
+        alert('Could not copy image to clipboard.');
+      }
     }
   </script>
 </body>

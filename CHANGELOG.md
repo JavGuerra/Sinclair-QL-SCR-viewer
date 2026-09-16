@@ -1,6 +1,11 @@
 # Changelog  
 Sinclair QL SCR viewer
 
+__v1.1 - 2026-09-16__ 
+- Se añadió la opción de arrastrar y soltar (Drag & Drop).
+- Se añadió la opción de copiar al portapapeles.
+- Añadidos atajos de teclado.
+
 __v1.0 - 2024-02-10__ 
 - Se evitó leer el archivo cada vez que se cambia de modo.
 - Se añadió control de errores al cargar el archivo.
